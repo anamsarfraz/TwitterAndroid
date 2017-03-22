@@ -27,6 +27,9 @@ public class Tweet extends BaseModel {
 	@Column
 	Long uid;
 
+    @Column
+    String idStr;
+
 	// Define table fields
 	@Column
     @ForeignKey(saveForeignKeyModel = true)
@@ -42,6 +45,11 @@ public class Tweet extends BaseModel {
     @ForeignKey(saveForeignKeyModel = true)
     Tweet retweetedStatus;
 
+    @Column
+    @ForeignKey(saveForeignKeyModel = true)
+    Media media;
+
+
 
 	public Tweet() {
 		super();
@@ -53,14 +61,23 @@ public class Tweet extends BaseModel {
 
 		try {
             this.uid = jsonObject.getLong("id");
+            this.idStr = jsonObject.getString("id_str");
             this.user = new User(jsonObject.getJSONObject("user"));
             this.body = jsonObject.getString("text");
             this.createdAt = jsonObject.getString("created_at");
             JSONObject retweetedStatus = jsonObject.optJSONObject("retweeted_status");
             if (retweetedStatus != null) {
                 this.retweetedStatus = new Tweet(retweetedStatus);
+            }
+            JSONObject entities = jsonObject.optJSONObject("entities");
+            JSONArray mediaArray = null;
+            if (entities != null) {
+                 mediaArray = entities.optJSONArray("media");
+            }
+            if (mediaArray != null) {
+                this.media = new Media(mediaArray.getJSONObject(0));
             } else {
-                this.retweetedStatus = null;
+                this.media = null;
             }
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -76,6 +93,14 @@ public class Tweet extends BaseModel {
 
     public void setUid(Long uid) {
         this.uid = uid;
+    }
+
+    public String getIdStr() {
+        return idStr;
+    }
+
+    public void setIdStr(String idStr) {
+        this.idStr = idStr;
     }
 
     public String getCreatedAt() {
@@ -104,13 +129,20 @@ public class Tweet extends BaseModel {
 		this.body = body;
 	}
 
-
     public Tweet getRetweetedStatus() {
         return retweetedStatus;
     }
 
     public void setRetweetedStatus(Tweet retweetedStatus) {
         this.retweetedStatus = retweetedStatus;
+    }
+
+    public Media getMedia() {
+        return media;
+    }
+
+    public void setMedia(Media media) {
+        this.media = media;
     }
 
     public static ArrayList<Tweet> fromJSONArray(JSONArray jsonArray) {

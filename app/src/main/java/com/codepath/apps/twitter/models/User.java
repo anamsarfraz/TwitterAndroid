@@ -21,6 +21,10 @@ public class User extends BaseModel {
     long uid;
 
     @Column
+    String
+    idStr;
+
+    @Column
     String name;
 
     @Column
@@ -40,6 +44,14 @@ public class User extends BaseModel {
 
     public void setUid(long uid) {
         this.uid = uid;
+    }
+
+    public String getIdStr() {
+        return idStr;
+    }
+
+    public void setIdStr(String idStr) {
+        this.idStr = idStr;
     }
 
     public String getName() {
@@ -85,6 +97,7 @@ public class User extends BaseModel {
 
         try {
             this.uid = jsonObject.getLong("id");
+            this.idStr = jsonObject.getString("id_str");
             this.name = jsonObject.getString("name");
             this.screenName = jsonObject.getString("screen_name");
             this.profileImageUrl = jsonObject.getString("profile_image_url");

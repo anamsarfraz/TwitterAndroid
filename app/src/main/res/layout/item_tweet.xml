@@ -17,12 +17,11 @@
         app:srcCompat="@drawable/ic_launcher" />
     <ImageView
         android:id="@+id/ivRetweetStatus"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
         android:layout_marginBottom="@dimen/margin8"
-        app:srcCompat="@drawable/retweet_icon"
-        android:layout_alignEnd="@id/ivProfileImage"
-        />
+        app:srcCompat="@drawable/retweet_default"
+        android:layout_alignEnd="@id/ivProfileImage" />
     <TextView
         android:id="@+id/tvOrigUserName"
         android:layout_width="wrap_content"
@@ -44,12 +43,13 @@
         android:id="@+id/tvScreenName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        tools:text="\@CNNlonglonglonglonglonglonglonglonglonglonglonglonglonglong"
+        tools:text="\@CNN"
         android:layout_marginStart="@dimen/margin4"
         android:layout_alignTop="@+id/tvUserName"
         android:layout_toEndOf="@+id/tvUserName"
         android:maxLines="1"
         android:ellipsize="end"
+        android:maxWidth="@dimen/width100"
         android:drawableEnd="@drawable/dot_divider"
         android:drawablePadding="@dimen/margin4"/>
     <TextView
@@ -74,10 +74,7 @@
         android:layout_alignStart="@+id/tvUserName"
         android:autoLink="all"
         android:linksClickable="true"
-        android:textColorLink="@android:color/holo_blue_light"
-        />
-
-
+        android:textColorLink="@android:color/holo_blue_light" />
     <ImageView
         android:id="@+id/ivMultiMedia"
         android:layout_width="wrap_content"
@@ -87,6 +84,7 @@
         android:layout_below="@+id/tvBody"
         android:layout_marginTop="@dimen/margin8"
         android:layout_marginEnd="@dimen/margin4"
+        android:scaleType="fitXY"
         tools:src="@android:drawable/alert_dark_frame" />
 
 </RelativeLayout>

@@ -22,6 +22,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.codepath.apps.twitter.R;
+import com.codepath.apps.twitter.models.Media;
 import com.codepath.apps.twitter.models.Tweet;
 import com.codepath.apps.twitter.models.User;
 import com.codepath.apps.twitter.util.Constants;
@@ -33,9 +34,14 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import jp.wasabeef.glide.transformations.RoundedCornersTransformation;
 
+import static com.bumptech.glide.Glide.with;
+
 
 public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.ViewHolder> {
 
+    // Define class constants
+    private static final int PROFILE_IMG_ROUND = 6;
+    private static final int MEDIA_IMG_ROUND = 10;
     // Define listener member variable
     private static OnItemClickListener listener;
 
@@ -56,6 +62,7 @@ public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.
         @BindView(R.id.tvScreenName) TextView tvScreenName;
         @BindView(R.id.tvCreatedTime) TextView tvCreatedTime;
         @BindView(R.id.tvBody) TextView tvBody;
+        @BindView(R.id.ivMultiMedia) ImageView ivMultiMedia;
 
         public ViewHolder(final View itemView) {
             // Stores the itemView in a public final member variable that can be used
@@ -76,10 +83,7 @@ public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.
                     }
                 }
             });
-
-
         }
-
     }
 
     // Store a member variable for the tweets
@@ -119,7 +123,7 @@ public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.
         Tweet tweet = mTweets.get(position);
         boolean isRetweet = false;
 
-        // Check retweet status
+        // Check retweet_default status
         if (tweet.getRetweetedStatus() != null) {
             holder.ivRetweetStatus.setVisibility(View.VISIBLE);
             holder.tvOrigUserName.setVisibility(View.VISIBLE);
@@ -135,7 +139,7 @@ public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.
 
         // set the text views
         holder.tvUserName.setText(user.getName());
-        holder.tvScreenName.setText(String.format("%s%slonglonglonglonglonglonglong",Constants.ATRATE,
+        holder.tvScreenName.setText(String.format("%s%s",Constants.ATRATE,
                 user.getScreenName()));
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             holder.tvBody.setText(Html.fromHtml(tweet.getBody(), Html.FROM_HTML_MODE_LEGACY));
@@ -152,22 +156,38 @@ public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.
             holder.tvUserName.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
         }
 
-        // find the image view
+        // find the image views
         ImageView ivProfileImage = holder.ivProfileImage;
+        ImageView ivMultiMedia = holder.ivMultiMedia;
 
         // clear out recycled image from convertView from last time
         ivProfileImage.setImageResource(android.R.color.transparent);
+        ivMultiMedia.setImageResource(android.R.color.transparent);
 
         // populate the thumbnail image
-        // remote download the image in the background
+        // remote download the images for profile and media in the background
 
             Glide
                     .with(getContext())
                     .load(tweet.getUser().getProfileImageUrl())
-                    .bitmapTransform(new RoundedCornersTransformation(mContext, 4, 0))
-                    .placeholder(R.drawable.ic_launcher)
+                    .bitmapTransform(new RoundedCornersTransformation(mContext, PROFILE_IMG_ROUND, 0))
+                    .placeholder(R.drawable.tweet_placeholder)
                     .crossFade()
                     .into(ivProfileImage);
+
+        // Check if multimedia image is available
+        Media media = tweet.getMedia();
+        if (media != null) {
+            Glide
+                    .with(getContext())
+                    .load(media.getImageUrl()+":large")
+                    .bitmapTransform(new RoundedCornersTransformation(mContext, MEDIA_IMG_ROUND, 0))
+                    .placeholder(R.drawable.tweet_placeholder)
+                    .crossFade()
+                    .into(ivMultiMedia);
+        }
+
+
 
 
     }
