@@ -1,6 +1,7 @@
 package com.codepath.apps.twitter.models;
 
 import com.codepath.apps.twitter.databases.TwitterDatabase;
+import com.codepath.apps.twitter.util.Constants;
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ForeignKey;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
@@ -70,14 +71,15 @@ public class Tweet extends BaseModel {
                 this.retweetedStatus = new Tweet(retweetedStatus);
             }
             JSONObject entities = jsonObject.optJSONObject("entities");
+            JSONObject extendedEntities = jsonObject.optJSONObject("extended_entities");
             JSONArray mediaArray = null;
+            this.media = null;
             if (entities != null) {
-                 mediaArray = entities.optJSONArray("media");
-            }
-            if (mediaArray != null) {
-                this.media = new Media(mediaArray.getJSONObject(0));
-            } else {
-                this.media = null;
+                mediaArray = entities.optJSONArray("media");
+                if (mediaArray != null) {
+                    this.media = new Media(mediaArray, extendedEntities);
+                }
+
             }
 		} catch (JSONException e) {
 			e.printStackTrace();

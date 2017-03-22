@@ -1,11 +1,13 @@
 package com.codepath.apps.twitter.models;
 
 import com.codepath.apps.twitter.databases.TwitterDatabase;
+import com.codepath.apps.twitter.util.Constants;
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.parceler.Parcel;
@@ -75,17 +77,37 @@ public class Media extends BaseModel {
     }
 
     // Parse model from JSON
-    public Media(JSONObject jsonObject){
+    public Media(JSONArray mediaArray, JSONObject extendedEntities){
         super();
 
         try {
-            this.uid = jsonObject.getLong("id");
-            this.idStr = jsonObject.getString("id_str");
-            this.type = jsonObject.getString("type");
-            this.imageUrl = jsonObject.getString("media_url");
-        } catch (JSONException e) {
-            e.printStackTrace();
+            JSONObject mediaObj = mediaArray.getJSONObject(0);
+            this.uid = mediaObj.getLong("id");
+            this.idStr = mediaObj.getString("id_str");
+            this.imageUrl = mediaObj.getString("media_url");
+
+            if (extendedEntities != null) {
+                JSONObject extendedMedia = extendedEntities
+                        .optJSONArray("media")
+                        .getJSONObject(0);
+                this.type = extendedMedia.getString("type");
+                if (this.type.equals(Constants.VIDEO_STR)) {
+                    this.videoUrl = extendedMedia
+                            .getJSONObject("video_info")
+                            .getJSONArray("variants")
+                            .getJSONObject(0)
+                            .getString("url");
+                }
+            } else {
+                this.type = mediaObj.getString("type");
+            }
+            if (!this.type.equals(Constants.VIDEO_STR)) {
+                this.videoUrl = null;
+            }
+        } catch (JSONException e1) {
+            e1.printStackTrace();
         }
     }
+
 
 }

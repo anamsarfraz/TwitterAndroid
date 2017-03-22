@@ -87,4 +87,11 @@
         android:scaleType="fitXY"
         tools:src="@android:drawable/alert_dark_frame" />
 
+    <com.yqritc.scalablevideoview.ScalableVideoView
+        android:id="@+id/vvMultiMedia"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="100dp"
+        app:scalableType="fitCenter"/>
+
 </RelativeLayout>

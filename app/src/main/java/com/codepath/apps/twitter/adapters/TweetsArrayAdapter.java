@@ -2,23 +2,23 @@ package com.codepath.apps.twitter.adapters;
 
 
 import android.annotation.TargetApi;
+import android.app.ProgressDialog;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapShader;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.RectF;
-import android.graphics.Shader;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.media.MediaPlayer;
+import android.media.MediaPlayer.OnPreparedListener;
+import android.net.Uri;
 import android.os.Build;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.MediaController;
 import android.widget.TextView;
+import android.widget.VideoView;
 
 import com.bumptech.glide.Glide;
 import com.codepath.apps.twitter.R;
@@ -27,14 +27,15 @@ import com.codepath.apps.twitter.models.Tweet;
 import com.codepath.apps.twitter.models.User;
 import com.codepath.apps.twitter.util.Constants;
 import com.codepath.apps.twitter.util.DateUtil;
+import com.yqritc.scalablevideoview.ScalableType;
+import com.yqritc.scalablevideoview.ScalableVideoView;
 
+import java.io.IOException;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import jp.wasabeef.glide.transformations.RoundedCornersTransformation;
-
-import static com.bumptech.glide.Glide.with;
 
 
 public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.ViewHolder> {
@@ -44,6 +45,8 @@ public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.
     private static final int MEDIA_IMG_ROUND = 10;
     // Define listener member variable
     private static OnItemClickListener listener;
+
+    private int mVideoResId;
 
     // Define the listener interface
     public interface OnItemClickListener {
@@ -63,6 +66,8 @@ public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.
         @BindView(R.id.tvCreatedTime) TextView tvCreatedTime;
         @BindView(R.id.tvBody) TextView tvBody;
         @BindView(R.id.ivMultiMedia) ImageView ivMultiMedia;
+        @BindView(R.id.vvMultiMedia)ScalableVideoView vvMultiMedia;
+        ScalableType mScalableType;
 
         public ViewHolder(final View itemView) {
             // Stores the itemView in a public final member variable that can be used
@@ -70,6 +75,7 @@ public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.
             super(itemView);
 
             ButterKnife.bind(this, itemView);
+
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -118,7 +124,7 @@ public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(final ViewHolder holder, int position) {
         // Get the data model based on position
         Tweet tweet = mTweets.get(position);
         boolean isRetweet = false;
@@ -158,7 +164,7 @@ public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.
 
         // find the image views
         ImageView ivProfileImage = holder.ivProfileImage;
-        ImageView ivMultiMedia = holder.ivMultiMedia;
+        final ImageView ivMultiMedia = holder.ivMultiMedia;
 
         // clear out recycled image from convertView from last time
         ivProfileImage.setImageResource(android.R.color.transparent);
@@ -185,12 +191,54 @@ public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.
                     .placeholder(R.drawable.tweet_placeholder)
                     .crossFade()
                     .into(ivMultiMedia);
+            if (media.getType().equals(Constants.VIDEO_STR)) {
+                Log.d("DEBUG", String.format("Got Video Url for tweet: %s", media.getVideoUrl()));
+                // Create a progressbar
+           /*     final ProgressDialog pDialog = new ProgressDialog(mContext);
+                // Set progressbar title
+                pDialog.setTitle("Android Video Streaming Tutorial");
+                // Set progressbar message
+                pDialog.setMessage("Buffering...");
+                pDialog.setIndeterminate(false);
+                pDialog.setCancelable(false);
+                // Show progressbar
+                pDialog.show();
+*/
+                holder.ivMultiMedia.setVisibility(View.GONE);
+                holder.vvMultiMedia.setVisibility(View.VISIBLE);
+                holder.vvMultiMedia.bringToFront();
+                try {
+                    holder.vvMultiMedia.setDataSource(media.getVideoUrl());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                holder.vvMultiMedia.requestFocus();
+
+
+            }
         }
-
-
-
-
     }
+
+    /*@Override
+    public void onViewAttachedToWindow(ViewHolder holder) {
+        setVideo(holder.vvMultiMedia);
+    }
+
+    private void setVideo(final ScalableVideoView videoView) {
+        try {
+            videoView.setVolume(0, 0);
+            videoView.setLooping(true);
+            videoView.prepare(new MediaPlayer.OnPreparedListener() {
+                @Override
+                public void onPrepared(MediaPlayer mp) {
+                    videoView.start();
+                }
+            });
+        } catch (IOException ioe) {
+            //ignore
+        }
+    }*/
 
     @Override
     public int getItemCount() {
