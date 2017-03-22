@@ -135,7 +135,7 @@ public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.
 
         // set the text views
         holder.tvUserName.setText(user.getName());
-        holder.tvScreenName.setText(String.format("%s%s",Constants.ATRATE,
+        holder.tvScreenName.setText(String.format("%s%slonglonglonglonglonglonglong",Constants.ATRATE,
                 user.getScreenName()));
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             holder.tvBody.setText(Html.fromHtml(tweet.getBody(), Html.FROM_HTML_MODE_LEGACY));

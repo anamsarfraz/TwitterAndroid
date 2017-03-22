@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="10dp">
+    android:padding="10dp"
+    android:gravity="start">
 
     <ImageView
         android:id="@+id/ivProfileImage"
@@ -43,10 +44,12 @@
         android:id="@+id/tvScreenName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        tools:text="\@CNN"
+        tools:text="\@CNNlonglonglonglonglonglonglonglonglonglonglonglonglonglong"
         android:layout_marginStart="@dimen/margin4"
         android:layout_alignTop="@+id/tvUserName"
         android:layout_toEndOf="@+id/tvUserName"
+        android:maxLines="1"
+        android:ellipsize="end"
         android:drawableEnd="@drawable/dot_divider"
         android:drawablePadding="@dimen/margin4"/>
     <TextView
@@ -56,6 +59,8 @@
         android:layout_alignTop="@+id/tvScreenName"
         android:layout_marginStart="@dimen/margin4"
         android:layout_toEndOf="@+id/tvScreenName"
+        android:layout_alignParentEnd="true"
+        android:maxLines="1"
         tools:text="25m" />
     <TextView
         android:id="@+id/tvBody"
