@@ -2,12 +2,8 @@ package com.codepath.apps.twitter.adapters;
 
 
 import android.annotation.TargetApi;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.media.MediaPlayer;
-import android.media.MediaPlayer.OnPreparedListener;
-import android.net.Uri;
 import android.os.Build;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
@@ -16,9 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.MediaController;
 import android.widget.TextView;
-import android.widget.VideoView;
 
 import com.bumptech.glide.Glide;
 import com.codepath.apps.twitter.R;
@@ -177,7 +171,7 @@ public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.
                     .with(getContext())
                     .load(tweet.getUser().getProfileImageUrl())
                     .bitmapTransform(new RoundedCornersTransformation(mContext, PROFILE_IMG_ROUND, 0))
-                    .placeholder(R.drawable.tweet_placeholder)
+                    .placeholder(R.drawable.tweet_social)
                     .crossFade()
                     .into(ivProfileImage);
 
@@ -188,7 +182,7 @@ public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.
                     .with(getContext())
                     .load(media.getImageUrl()+":large")
                     .bitmapTransform(new RoundedCornersTransformation(mContext, MEDIA_IMG_ROUND, 0))
-                    .placeholder(R.drawable.tweet_placeholder)
+                    .placeholder(R.drawable.tweet_social)
                     .crossFade()
                     .into(ivMultiMedia);
             if (media.getType().equals(Constants.VIDEO_STR)) {
