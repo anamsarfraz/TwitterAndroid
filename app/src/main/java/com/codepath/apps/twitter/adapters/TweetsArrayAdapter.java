@@ -10,8 +10,10 @@ import android.graphics.Paint;
 import android.graphics.RectF;
 import android.graphics.Shader;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.v7.widget.RecyclerView;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,10 +33,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import jp.wasabeef.glide.transformations.RoundedCornersTransformation;
 
-import static com.codepath.apps.twitter.R.id.ivProfileImage;
-import static com.codepath.apps.twitter.R.id.ivVerifiedUser;
-import static com.codepath.apps.twitter.R.id.tvUserName;
-import static com.codepath.apps.twitter.util.Constants.DOT;
 
 public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.ViewHolder> {
 
@@ -55,7 +53,6 @@ public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.
         @BindView(R.id.tvOrigUserName) TextView tvOrigUserName;
         @BindView(R.id.ivProfileImage) ImageView ivProfileImage;
         @BindView(R.id.tvUserName) TextView tvUserName;
-        @BindView(R.id.ivVerifiedUser) ImageView ivVerifiedUser;
         @BindView(R.id.tvScreenName) TextView tvScreenName;
         @BindView(R.id.tvCreatedTime) TextView tvCreatedTime;
         @BindView(R.id.tvBody) TextView tvBody;
@@ -117,7 +114,7 @@ public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     @Override
-    public void onBindViewHolder(TweetsArrayAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(ViewHolder holder, int position) {
         // Get the data model based on position
         Tweet tweet = mTweets.get(position);
         boolean isRetweet = false;
@@ -140,15 +137,19 @@ public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.
         holder.tvUserName.setText(user.getName());
         holder.tvScreenName.setText(String.format("%s%s",Constants.ATRATE,
                 user.getScreenName()));
-        holder.tvBody.setText(tweet.getBody());
-        holder.tvCreatedTime.setText(String.format("%s %s",
-                Constants.DOT, DateUtil.getRelativeTimeAgo(tweet.getCreatedAt())));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            holder.tvBody.setText(Html.fromHtml(tweet.getBody(), Html.FROM_HTML_MODE_LEGACY));
+        } else {
+            holder.tvBody.setText(Html.fromHtml(tweet.getBody()));
+        }
+        holder.tvCreatedTime.setText(DateUtil.getRelativeTimeAgo(tweet.getCreatedAt()));
 
         // set the verified image view
+        Drawable drawable =  getContext().getDrawable(R.drawable.verified_user);
         if (user.getVerified()) {
-            holder.ivVerifiedUser.setVisibility(View.VISIBLE);
+            holder.tvUserName.setCompoundDrawablesRelativeWithIntrinsicBounds(null, null, drawable, null);
         } else {
-            holder.ivVerifiedUser.setVisibility(View.GONE);
+            holder.tvUserName.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
         }
 
         // find the image view

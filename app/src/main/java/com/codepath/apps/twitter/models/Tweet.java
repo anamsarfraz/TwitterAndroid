@@ -39,7 +39,7 @@ public class Tweet extends BaseModel {
 	String body;
 
     @Column
-    @ForeignKey
+    @ForeignKey(saveForeignKeyModel = true)
     Tweet retweetedStatus;
 
 

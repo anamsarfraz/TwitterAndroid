@@ -37,15 +37,8 @@
         android:layout_toEndOf="@+id/ivProfileImage"
         android:textColor="@android:color/black"
         android:textStyle="bold"
-        tools:text="CNN" />
-    <ImageView
-        android:id="@+id/ivVerifiedUser"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:srcCompat="@drawable/verified_user"
-        android:layout_alignBottom="@+id/tvUserName"
-        android:layout_toEndOf="@+id/tvUserName"
-        android:visibility="visible"/>
+        tools:text="CNN"
+        android:drawableEnd="@drawable/verified_user"/>
     <TextView
         android:id="@+id/tvScreenName"
         android:layout_width="wrap_content"
@@ -53,7 +46,9 @@
         tools:text="\@CNN"
         android:layout_marginStart="@dimen/margin4"
         android:layout_alignTop="@+id/tvUserName"
-        android:layout_toEndOf="@+id/ivVerifiedUser" />
+        android:layout_toEndOf="@+id/tvUserName"
+        android:drawableEnd="@drawable/dot_divider"
+        android:drawablePadding="@dimen/margin4"/>
     <TextView
         android:id="@+id/tvCreatedTime"
         android:layout_width="wrap_content"
@@ -61,7 +56,7 @@
         android:layout_alignTop="@+id/tvScreenName"
         android:layout_marginStart="@dimen/margin4"
         android:layout_toEndOf="@+id/tvScreenName"
-        tools:text=". 25m" />
+        tools:text="25m" />
     <TextView
         android:id="@+id/tvBody"
         android:layout_width="wrap_content"

@@ -3,6 +3,7 @@ package com.codepath.apps.twitter.util;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import android.text.format.DateUtils;
+import android.util.Log;
 
 import java.util.Locale;
 
@@ -26,6 +27,11 @@ public class DateUtil {
 
         String[] timeComponents = relativeDate.split(" ");
 
-        return String.format("%s%c", timeComponents[0], timeComponents[1].charAt(0));
+
+        if (relativeDate.equals(Constants.YESTERDAY_STR)) {
+            return Constants.ONE_DAY_STR;
+        } else {
+            return String.format("%s%c", timeComponents[0], timeComponents[1].charAt(0));
+        }
     }
 }
