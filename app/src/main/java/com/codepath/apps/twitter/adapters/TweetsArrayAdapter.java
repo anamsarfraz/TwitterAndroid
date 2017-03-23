@@ -4,7 +4,9 @@ package com.codepath.apps.twitter.adapters;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Build;
+import android.os.Handler;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.util.Log;
@@ -21,8 +23,27 @@ import com.codepath.apps.twitter.models.Tweet;
 import com.codepath.apps.twitter.models.User;
 import com.codepath.apps.twitter.util.Constants;
 import com.codepath.apps.twitter.util.DateUtil;
-import com.yqritc.scalablevideoview.ScalableType;
-import com.yqritc.scalablevideoview.ScalableVideoView;
+import com.google.android.exoplayer2.DefaultLoadControl;
+import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.ExoPlayerFactory;
+import com.google.android.exoplayer2.LoadControl;
+import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
+import com.google.android.exoplayer2.extractor.ExtractorsFactory;
+import com.google.android.exoplayer2.source.ExtractorMediaSource;
+import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
+import com.google.android.exoplayer2.trackselection.TrackSelection;
+import com.google.android.exoplayer2.trackselection.TrackSelector;
+import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
+import com.google.android.exoplayer2.upstream.BandwidthMeter;
+import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.upstream.TransferListener;
+import com.google.android.exoplayer2.util.Util;
+
 
 import java.io.IOException;
 import java.util.List;
@@ -60,8 +81,7 @@ public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.
         @BindView(R.id.tvCreatedTime) TextView tvCreatedTime;
         @BindView(R.id.tvBody) TextView tvBody;
         @BindView(R.id.ivMultiMedia) ImageView ivMultiMedia;
-        @BindView(R.id.vvMultiMedia)ScalableVideoView vvMultiMedia;
-        ScalableType mScalableType;
+        @BindView(R.id.vvMultiMedia)SimpleExoPlayerView vvMultiMedia;
 
         public ViewHolder(final View itemView) {
             // Stores the itemView in a public final member variable that can be used
@@ -198,16 +218,38 @@ public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.
                 // Show progressbar
                 pDialog.show();
 */
-                holder.ivMultiMedia.setVisibility(View.GONE);
-                holder.vvMultiMedia.setVisibility(View.VISIBLE);
-                holder.vvMultiMedia.bringToFront();
-                try {
-                    holder.vvMultiMedia.setDataSource(media.getVideoUrl());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
 
-                holder.vvMultiMedia.requestFocus();
+           holder.vvMultiMedia.bringToFront();
+           holder.vvMultiMedia.requestFocus();
+                Handler mainHandler = new Handler();
+                BandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
+                TrackSelection.Factory videoTrackSelectionFactory =
+                        new AdaptiveTrackSelection.Factory(bandwidthMeter);
+                TrackSelector trackSelector =
+                        new DefaultTrackSelector(videoTrackSelectionFactory);
+
+// 2. Create a default LoadControl
+                LoadControl loadControl = new DefaultLoadControl();
+
+// 3. Create the player
+                SimpleExoPlayer player =
+                        ExoPlayerFactory.newSimpleInstance(mContext, trackSelector, loadControl);
+                // Bind the player to the view.
+                holder.vvMultiMedia.setPlayer(player);
+
+                // Measures bandwidth during playback. Can be null if not required.
+// Produces DataSource instances through which media data is loaded.
+                DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(mContext,
+                        Util.getUserAgent(mContext, "Twitter"), (TransferListener<? super DataSource>) bandwidthMeter);
+// Produces Extractor instances for parsing the media data.
+                ExtractorsFactory extractorsFactory = new DefaultExtractorsFactory();
+// This is the MediaSource representing the media to be played.
+                MediaSource videoSource = new ExtractorMediaSource(Uri.parse(media.getVideoUrl()),
+                        dataSourceFactory, extractorsFactory, null, null);
+// Prepare the player with the source.
+                player.prepare(videoSource);
+                player.setPlayWhenReady(true);
+
 
 
             }

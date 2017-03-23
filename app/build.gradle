@@ -66,4 +66,5 @@ dependencies {
     testCompile 'junit:junit:4.12'
     annotationProcessor 'org.parceler:parceler:1.1.6'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.5.1'
+    compile 'com.google.android.exoplayer:exoplayer:r2.3.0'
 }
