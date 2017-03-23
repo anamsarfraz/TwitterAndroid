@@ -6,6 +6,7 @@ import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ForeignKey;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;
+import com.raizlabs.android.dbflow.sql.language.Condition;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 
@@ -172,7 +173,13 @@ public class Tweet extends BaseModel {
 		return new Select().from(Tweet.class).where(Tweet_Table.uid.eq(uid)).querySingle();
 	}
 
-	public static List<Tweet> recentItems() {
-		return new Select().from(Tweet.class).orderBy(Tweet_Table.uid, false).limit(300).queryList();
+	public static List<Tweet> recentItems(long maxId) {
+        Condition condition = maxId <= 0 ? Tweet_Table.uid.greaterThan(maxId) : Tweet_Table.uid.lessThanOrEq(maxId);
+		return new Select()
+                .from(Tweet.class)
+                .where(condition)
+                .orderBy(Tweet_Table.uid, false)
+                .limit(Constants.MAX_TWEET_COUNT)
+                .queryList();
 	}
 }

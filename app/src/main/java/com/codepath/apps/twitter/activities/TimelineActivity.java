@@ -1,6 +1,7 @@
 package com.codepath.apps.twitter.activities;
 
 import android.os.Build;
+import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -8,7 +9,7 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.widget.Toast;
+import android.widget.ProgressBar;
 
 import com.codepath.apps.twitter.R;
 import com.codepath.apps.twitter.adapters.TweetsArrayAdapter;
@@ -29,19 +30,32 @@ import cz.msebera.android.httpclient.Header;
 import java.util.ArrayList;
 import java.util.List;
 
-import static android.media.CamcorderProfile.get;
 import static com.raizlabs.android.dbflow.config.FlowManager.getContext;
 
 public class TimelineActivity extends AppCompatActivity {
 
     public static final String DEBUG = "DEBUG";
+    public static final String ERROR = "ERROR";
+    private static final int RATE_LIMIT_ERR = 88;
+    private static final int RETRY_LIMIT = 3;
+    private static final long DELAY_MILLI = 3000;
     TwitterClient client;
     List<Tweet> tweets;
     long currMaxId;
+    int retryCount;
     TweetsArrayAdapter tweetsArrayAdapter;
     LinearLayoutManager linearLayoutManager;
     @BindView(R.id.rvTweets) RecyclerView rvTweets;
     @BindView(R.id.swipeContainer) SwipeRefreshLayout swipeContainer;
+    @BindView(R.id.pbLoading) ProgressBar progressBar;
+    Handler handler;
+    final Runnable runnableCode = new Runnable() {
+
+        @Override
+        public void run() {
+            fetchTimeline();
+        }
+    };
 
     // Store a member variable for the listener
     private EndlessRecyclerViewScrollListener scrollListener;
@@ -54,6 +68,7 @@ public class TimelineActivity extends AppCompatActivity {
         client = TwitterApplication.getRestClient();
         tweets = new ArrayList<>();
         tweetsArrayAdapter = new TweetsArrayAdapter(this, tweets);
+        handler = new Handler();
 
         setUpRecycleView();
         setUpRefreshControl();
@@ -76,46 +91,78 @@ public class TimelineActivity extends AppCompatActivity {
         rvTweets.addItemDecoration(dividerItemDecoration);
     }
 
+    private void setUpScrollListener() {
+        scrollListener = new EndlessRecyclerViewScrollListener(linearLayoutManager) {
+            @Override
+            public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
+                progressBar.setVisibility(ProgressBar.VISIBLE);
+                retryCount = 0;
+                Log.d(DEBUG, "Scroll initiated");
+                if (Connectivity.isConnected(getApplicationContext())) {
+                    fetchTimeline();
+                } else {
+                    fetchOffline();
+                }
+
+            }
+        };
+        // Adds the scroll listener to RecyclerView
+        rvTweets.addOnScrollListener(scrollListener);
+    }
 
     private void fetchTimeline() {
         client.getHomeTimeline(currMaxId, new JsonHttpResponseHandler() {
             public void onSuccess(int statusCode, Header[] headers, JSONArray jsonArray) {
                 hideRefreshControl();
                 Log.d("DEBUG", "timeline: " + jsonArray.toString());
-                int curSize = tweetsArrayAdapter.getItemCount();
                 List<Tweet> newTweets = Tweet.fromJSONArray(jsonArray);
-                tweets.addAll(newTweets);
-                int newSize = newTweets.size();
-                currMaxId = newTweets.get(newSize-1).getUid()-1;
-                tweetsArrayAdapter.notifyItemRangeInserted(curSize, newSize);
+                processFetchedTweets(newTweets);
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                Log.d("DEBUG", errorResponse.toString());
-                beginNewSearch();
+                hideRefreshControl();
+                Log.e(ERROR, "Error fetching timeline: " + errorResponse.toString());
+                int errorCode = errorResponse.optJSONArray("errors").optJSONObject(0).optInt("code", 0);
+
+                if (errorCode == RATE_LIMIT_ERR && retryCount < RETRY_LIMIT) {
+                    retryCount++;
+                    handler.postDelayed(runnableCode, DELAY_MILLI);
+                } else {
+                    fetchOffline();
+                }
             }
         });
+    }
 
+    private void fetchOffline() {
+        List<Tweet> newTweets = Tweet.recentItems(currMaxId);
+        processFetchedTweets(newTweets);
 
-        /* For debugging, loading from database only*/
-        /*int curSize = tweetsArrayAdapter.getItemCount();
+    }
 
-        List<Tweet> newTweets = Tweet.recentItems();
+    private void processFetchedTweets(List<Tweet> newTweets) {
+        int curSize = tweetsArrayAdapter.getItemCount();
         tweets.addAll(newTweets);
-        tweetsArrayAdapter.notifyItemRangeInserted(curSize, newTweets.size());
-*/
+        int newSize = newTweets.size();
+        currMaxId = newTweets.get(newSize-1).getUid()-1;
+        tweetsArrayAdapter.notifyItemRangeInserted(curSize, newSize);
+        progressBar.setVisibility(ProgressBar.INVISIBLE);
+        handler.removeCallbacks(runnableCode);
     }
 
     public void beginNewSearch() {
         currMaxId = 0L;
+        retryCount = 0;
         tweetsArrayAdapter.clearItems();
         scrollListener.resetState();
         hideRefreshControl();
+        progressBar.setVisibility(ProgressBar.VISIBLE);
+
         if (Connectivity.isConnected(this)) {
             fetchTimeline();
         } else {
-            Toast.makeText(this, "Unable to access internet. Network Error?", Toast.LENGTH_SHORT).show();
+            fetchOffline();
         }
     }
 
@@ -138,21 +185,6 @@ public class TimelineActivity extends AppCompatActivity {
                 android.R.color.holo_orange_light,
                 android.R.color.holo_red_light);
 
-    }
-
-
-    private void setUpScrollListener() {
-        scrollListener = new EndlessRecyclerViewScrollListener(linearLayoutManager) {
-            @Override
-            public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
-                // Triggered only when new data needs to be appended to the list
-                // Add whatever code is needed to append new items to the bottom of the list
-                fetchTimeline();
-                Log.d(DEBUG, "Scroll initiated");
-            }
-        };
-        // Adds the scroll listener to RecyclerView
-        rvTweets.addOnScrollListener(scrollListener);
     }
 
     public void onLogout() {
