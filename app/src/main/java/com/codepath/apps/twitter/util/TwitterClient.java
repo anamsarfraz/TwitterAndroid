@@ -28,17 +28,20 @@ public class TwitterClient extends OAuthBaseClient {
 	public static final String REST_CONSUMER_KEY = "4MYbq0IOFXCJg4lHMlcu23nfO";
 	public static final String REST_CONSUMER_SECRET = "dFIDL9hl35cqdt7WeDANX45h7ythP0X9MIcHVYoEdrvBxuYGMS";
 	public static final String REST_CALLBACK_URL = "oauth://cptweetclient.android";
+	public static final int MAX_COUNT = 25;
 
 	public TwitterClient(Context context) {
 		super(context, REST_API_CLASS, REST_URL, REST_CONSUMER_KEY, REST_CONSUMER_SECRET, REST_CALLBACK_URL);
 	}
 
-	public void getHomeTimeline(int page, AsyncHttpResponseHandler handler) {
+	public void getHomeTimeline(long maxId, AsyncHttpResponseHandler handler) {
 		String apiUrl = getApiUrl("statuses/home_timeline.json");
 		RequestParams params = new RequestParams();
-		params.put("page", String.valueOf(page));
-        params.put("count", 200);
-        params.put("since_id", 1);
+        params.put("count", MAX_COUNT);
+		if (maxId > 0) {
+			params.put("max_id", maxId);
+		}
+
 		getClient().get(apiUrl, params, handler);
 	}
 

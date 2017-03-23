@@ -52,6 +52,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import jp.wasabeef.glide.transformations.RoundedCornersTransformation;
 
+import static com.codepath.apps.twitter.R.id.rvTweets;
+
 
 public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.ViewHolder> {
 
@@ -219,7 +221,7 @@ public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.
                 pDialog.show();
 */
 
-           holder.vvMultiMedia.bringToFront();
+           /*holder.vvMultiMedia.bringToFront();
            holder.vvMultiMedia.requestFocus();
                 Handler mainHandler = new Handler();
                 BandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
@@ -249,7 +251,7 @@ public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.
 // Prepare the player with the source.
                 player.prepare(videoSource);
                 player.setPlayWhenReady(true);
-
+*/
 
 
             }
@@ -285,9 +287,10 @@ public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.
         return mTweets.get(position);
     }
 
-    public void clear() {
+    public void clearItems() {
+        int currSize = mTweets.size();
         mTweets.clear();
-        notifyDataSetChanged();
+        notifyItemRangeRemoved(0, currSize);
     }
 
 }
