@@ -10,6 +10,7 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.widget.AbsListView;
 import android.widget.ProgressBar;
 
 import com.codepath.apps.twitter.R;
@@ -29,9 +30,19 @@ import cz.msebera.android.httpclient.Header;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.codepath.apps.twitter.R.id.swipeContainer;
+
 import static com.raizlabs.android.dbflow.config.FlowManager.getContext;
 import com.codepath.apps.twitter.databinding.ActivityTimelineBinding;
+import com.volokh.danylo.video_player_manager.manager.PlayerItemChangeListener;
+import com.volokh.danylo.video_player_manager.manager.SingleVideoPlayerManager;
+import com.volokh.danylo.video_player_manager.manager.VideoPlayerManager;
+import com.volokh.danylo.video_player_manager.meta.MetaData;
+import com.volokh.danylo.visibility_utils.calculator.DefaultSingleItemCalculatorCallback;
+import com.volokh.danylo.visibility_utils.calculator.ListItemsVisibilityCalculator;
+import com.volokh.danylo.visibility_utils.calculator.SingleListViewItemActiveCalculator;
+import com.volokh.danylo.visibility_utils.items.ListItem;
+import com.volokh.danylo.visibility_utils.scroll_utils.ItemsPositionGetter;
+import com.volokh.danylo.visibility_utils.scroll_utils.RecyclerViewItemPositionGetter;
 
 public class TimelineActivity extends AppCompatActivity {
 
@@ -48,6 +59,17 @@ public class TimelineActivity extends AppCompatActivity {
     TweetsArrayAdapter tweetsArrayAdapter;
     LinearLayoutManager linearLayoutManager;
     private ActivityTimelineBinding binding;
+
+    // Video player setup
+    private final VideoPlayerManager<MetaData> videoPlayerManager = new SingleVideoPlayerManager(new PlayerItemChangeListener() {
+        @Override
+        public void onPlayerItemChanged(MetaData metaData) {
+
+        }
+    });
+    private int scrollState = AbsListView.OnScrollListener.SCROLL_STATE_IDLE;
+    private ListItemsVisibilityCalculator videoVisibilityCalculator;
+    private ItemsPositionGetter itemsPositionGetter;
 
     Handler handler;
     final Runnable runnableCode = new Runnable() {
@@ -73,10 +95,37 @@ public class TimelineActivity extends AppCompatActivity {
 
         setUpRecycleView();
         setUpRefreshControl();
-        setUpScrollListener();
+        setUpScrollListeners();
 
         // fetch user timeline on first load
         beginNewSearch();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if(!tweets.isEmpty()){
+            // need to call this method from list view handler in order to have filled list
+
+            binding.rvTweets.post(new Runnable() {
+                @Override
+                public void run() {
+
+                    videoVisibilityCalculator.onScrollStateIdle(
+                            itemsPositionGetter,
+                            linearLayoutManager.findFirstVisibleItemPosition(),
+                            linearLayoutManager.findLastVisibleItemPosition());
+
+                }
+            });
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        // we have to stop any playback in onStop
+        videoPlayerManager.resetMediaPlayer();
     }
 
     private void setUpRecycleView() {
@@ -92,7 +141,7 @@ public class TimelineActivity extends AppCompatActivity {
         binding.rvTweets.addItemDecoration(dividerItemDecoration);
     }
 
-    private void setUpScrollListener() {
+    private void setUpScrollListeners() {
         scrollListener = new EndlessRecyclerViewScrollListener(linearLayoutManager) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
@@ -109,6 +158,37 @@ public class TimelineActivity extends AppCompatActivity {
         };
         // Adds the scroll listener to RecyclerView
         binding.rvTweets.addOnScrollListener(scrollListener);
+
+        /*binding.rvTweets.addOnScrollListener(new RecyclerView.OnScrollListener() {
+
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int scrollState) {
+                scrollState = scrollState;
+                if(scrollState == RecyclerView.SCROLL_STATE_IDLE && !tweets.isEmpty()){
+
+                    videoVisibilityCalculator.onScrollStateIdle(
+                            itemsPositionGetter,
+                            linearLayoutManager.findFirstVisibleItemPosition(),
+                            linearLayoutManager.findLastVisibleItemPosition());
+                }
+            }
+
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                if(!tweets.isEmpty()){
+                    videoVisibilityCalculator.onScroll(
+                            itemsPositionGetter,
+                            linearLayoutManager.findFirstVisibleItemPosition(),
+                            linearLayoutManager.findLastVisibleItemPosition() - linearLayoutManager.findFirstVisibleItemPosition() + 1,
+                            scrollState);
+                }
+            }
+        });
+        itemsPositionGetter = new RecyclerViewItemPositionGetter(linearLayoutManager, binding.rvTweets);
+
+
+        videoVisibilityCalculator = new SingleListViewItemActiveCalculator(new DefaultSingleItemCalculatorCallback(), tweets);
+        */
     }
 
     private void fetchTimeline() {
@@ -116,7 +196,7 @@ public class TimelineActivity extends AppCompatActivity {
             public void onSuccess(int statusCode, Header[] headers, JSONArray jsonArray) {
                 hideRefreshControl();
                 Log.d("DEBUG", "timeline: " + jsonArray.toString());
-                List<Tweet> newTweets = Tweet.fromJSONArray(jsonArray);
+                List<Tweet> newTweets = Tweet.fromJSONArray(jsonArray, videoPlayerManager);
                 processFetchedTweets(newTweets);
             }
 

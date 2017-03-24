@@ -2,6 +2,7 @@ package com.codepath.apps.twitter.adapters;
 
 
 import android.annotation.TargetApi;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -41,7 +42,13 @@ import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.upstream.TransferListener;
+import com.volokh.danylo.video_player_manager.manager.VideoPlayerManager;
+import com.volokh.danylo.video_player_manager.meta.CurrentItemMetaData;
+import com.volokh.danylo.video_player_manager.meta.MetaData;
+import com.volokh.danylo.video_player_manager.ui.VideoPlayerView;
+import com.volokh.danylo.visibility_utils.items.ListItem;
 import com.google.android.exoplayer2.util.Util;
 
 
@@ -51,10 +58,6 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import jp.wasabeef.glide.transformations.RoundedCornersTransformation;
-
-import static android.R.attr.bitmap;
-import static com.bumptech.glide.Glide.with;
-import static com.codepath.apps.twitter.R.id.rvTweets;
 
 
 public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.ViewHolder> {
@@ -85,7 +88,7 @@ public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.
         @BindView(R.id.tvCreatedTime) TextView tvCreatedTime;
         @BindView(R.id.tvBody) TextView tvBody;
         @BindView(R.id.ivMultiMedia) ImageView ivMultiMedia;
-        @BindView(R.id.vvMultiMedia)SimpleExoPlayerView vvMultiMedia;
+        @BindView(R.id.vvMultiMedia)VideoPlayerView vvMultiMedia;
 
         public ViewHolder(final View itemView) {
             // Stores the itemView in a public final member variable that can be used
@@ -107,6 +110,10 @@ public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.
                     }
                 }
             });
+        }
+
+        public VideoPlayerView getVvMultiMedia() {
+            return vvMultiMedia;
         }
     }
 
@@ -191,12 +198,12 @@ public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.
         // populate the thumbnail image
         // remote download the images for profile and media in the background
 
-            with(getContext())
-                    .load(tweet.getUser().getProfileImageUrl())
-                    .bitmapTransform(new RoundedCornersTransformation(mContext, PROFILE_IMG_ROUND, 0))
-                    .placeholder(R.drawable.tweet_social)
-                    .crossFade()
-                    .into(ivProfileImage);
+        Glide.with(getContext())
+                .load(tweet.getUser().getProfileImageUrl())
+                .bitmapTransform(new RoundedCornersTransformation(mContext, PROFILE_IMG_ROUND, 0))
+                .placeholder(R.drawable.tweet_social)
+                .crossFade()
+                .into(ivProfileImage);
 
         // Check if multimedia image is available
         Media media = tweet.getMedia();
@@ -211,76 +218,11 @@ public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.
                     .into(ivMultiMedia);
             if (media.getType().equals(Constants.VIDEO_STR)) {
                 Log.d("DEBUG", String.format("Got Video Url for tweet: %s", media.getVideoUrl()));
-                // Create a progressbar
-           /*     final ProgressDialog pDialog = new ProgressDialog(mContext);
-                // Set progressbar title
-                pDialog.setTitle("Android Video Streaming Tutorial");
-                // Set progressbar message
-                pDialog.setMessage("Buffering...");
-                pDialog.setIndeterminate(false);
-                pDialog.setCancelable(false);
-                // Show progressbar
-                pDialog.show();
-*/
-
-           /*holder.vvMultiMedia.bringToFront();
-           holder.vvMultiMedia.requestFocus();
-                Handler mainHandler = new Handler();
-                BandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
-                TrackSelection.Factory videoTrackSelectionFactory =
-                        new AdaptiveTrackSelection.Factory(bandwidthMeter);
-                TrackSelector trackSelector =
-                        new DefaultTrackSelector(videoTrackSelectionFactory);
-
-// 2. Create a default LoadControl
-                LoadControl loadControl = new DefaultLoadControl();
-
-// 3. Create the player
-                SimpleExoPlayer player =
-                        ExoPlayerFactory.newSimpleInstance(mContext, trackSelector, loadControl);
-                // Bind the player to the view.
-                holder.vvMultiMedia.setPlayer(player);
-
-                // Measures bandwidth during playback. Can be null if not required.
-// Produces DataSource instances through which media data is loaded.
-                DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(mContext,
-                        Util.getUserAgent(mContext, "Twitter"), (TransferListener<? super DataSource>) bandwidthMeter);
-// Produces Extractor instances for parsing the media data.
-                ExtractorsFactory extractorsFactory = new DefaultExtractorsFactory();
-// This is the MediaSource representing the media to be played.
-                MediaSource videoSource = new ExtractorMediaSource(Uri.parse(media.getVideoUrl()),
-                        dataSourceFactory, extractorsFactory, null, null);
-// Prepare the player with the source.
-                player.prepare(videoSource);
-                player.setPlayWhenReady(true);
-*/
-
-
             }
         } else {
             ivMultiMedia.setVisibility(View.GONE);
         }
     }
-
-    /*@Override
-    public void onViewAttachedToWindow(ViewHolder holder) {
-        setVideo(holder.vvMultiMedia);
-    }
-
-    private void setVideo(final ScalableVideoView videoView) {
-        try {
-            videoView.setVolume(0, 0);
-            videoView.setLooping(true);
-            videoView.prepare(new MediaPlayer.OnPreparedListener() {
-                @Override
-                public void onPrepared(MediaPlayer mp) {
-                    videoView.start();
-                }
-            });
-        } catch (IOException ioe) {
-            //ignore
-        }
-    }*/
 
     @Override
     public int getItemCount() {
