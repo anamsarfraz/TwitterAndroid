@@ -84,7 +84,8 @@
         android:layout_below="@+id/tvBody"
         android:layout_marginTop="@dimen/margin8"
         android:layout_marginEnd="@dimen/margin4"
-        android:scaleType="fitXY"
+        android:adjustViewBounds="true"
+        android:scaleType="centerCrop"
         tools:src="@android:drawable/alert_dark_frame" />
 
     <com.google.android.exoplayer2.ui.SimpleExoPlayerView android:id="@+id/vvMultiMedia"

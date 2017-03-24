@@ -52,6 +52,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import jp.wasabeef.glide.transformations.RoundedCornersTransformation;
 
+import static android.R.attr.bitmap;
+import static com.bumptech.glide.Glide.with;
 import static com.codepath.apps.twitter.R.id.rvTweets;
 
 
@@ -189,8 +191,7 @@ public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.
         // populate the thumbnail image
         // remote download the images for profile and media in the background
 
-            Glide
-                    .with(getContext())
+            with(getContext())
                     .load(tweet.getUser().getProfileImageUrl())
                     .bitmapTransform(new RoundedCornersTransformation(mContext, PROFILE_IMG_ROUND, 0))
                     .placeholder(R.drawable.tweet_social)
@@ -200,9 +201,10 @@ public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.
         // Check if multimedia image is available
         Media media = tweet.getMedia();
         if (media != null) {
+            ivMultiMedia.setVisibility(View.VISIBLE);
             Glide
                     .with(getContext())
-                    .load(media.getImageUrl()+":large")
+                    .load(media.getImageUrl())
                     .bitmapTransform(new RoundedCornersTransformation(mContext, MEDIA_IMG_ROUND, 0))
                     .placeholder(R.drawable.tweet_social)
                     .crossFade()
@@ -255,6 +257,8 @@ public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.
 
 
             }
+        } else {
+            ivMultiMedia.setVisibility(View.GONE);
         }
     }
 
