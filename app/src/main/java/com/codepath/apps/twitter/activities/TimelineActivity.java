@@ -1,5 +1,6 @@
 package com.codepath.apps.twitter.activities;
 
+import android.databinding.DataBindingUtil;
 import android.os.Build;
 import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -23,14 +24,14 @@ import com.loopj.android.http.JsonHttpResponseHandler;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import cz.msebera.android.httpclient.Header;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.codepath.apps.twitter.R.id.swipeContainer;
 import static com.raizlabs.android.dbflow.config.FlowManager.getContext;
+import com.codepath.apps.twitter.databinding.ActivityTimelineBinding;
 
 public class TimelineActivity extends AppCompatActivity {
 
@@ -39,15 +40,15 @@ public class TimelineActivity extends AppCompatActivity {
     private static final int RATE_LIMIT_ERR = 88;
     private static final int RETRY_LIMIT = 3;
     private static final long DELAY_MILLI = 3000;
+
     TwitterClient client;
     List<Tweet> tweets;
     long currMaxId;
     int retryCount;
     TweetsArrayAdapter tweetsArrayAdapter;
     LinearLayoutManager linearLayoutManager;
-    @BindView(R.id.rvTweets) RecyclerView rvTweets;
-    @BindView(R.id.swipeContainer) SwipeRefreshLayout swipeContainer;
-    @BindView(R.id.pbLoading) ProgressBar progressBar;
+    private ActivityTimelineBinding binding;
+
     Handler handler;
     final Runnable runnableCode = new Runnable() {
 
@@ -64,7 +65,7 @@ public class TimelineActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_timeline);
-        ButterKnife.bind(this);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_timeline);
         client = TwitterApplication.getRestClient();
         tweets = new ArrayList<>();
         tweetsArrayAdapter = new TweetsArrayAdapter(this, tweets);
@@ -79,23 +80,23 @@ public class TimelineActivity extends AppCompatActivity {
     }
 
     private void setUpRecycleView() {
-        rvTweets.setAdapter(tweetsArrayAdapter);
+        binding.rvTweets.setAdapter(tweetsArrayAdapter);
         linearLayoutManager = new LinearLayoutManager(this);
-        rvTweets.setLayoutManager(linearLayoutManager);
+        binding.rvTweets.setLayoutManager(linearLayoutManager);
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(getContext(),
                 LinearLayoutManager.VERTICAL);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             dividerItemDecoration.setDrawable(getDrawable(R.drawable.line_divider));
         }
-        rvTweets.addItemDecoration(dividerItemDecoration);
+        binding.rvTweets.addItemDecoration(dividerItemDecoration);
     }
 
     private void setUpScrollListener() {
         scrollListener = new EndlessRecyclerViewScrollListener(linearLayoutManager) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
-                progressBar.setVisibility(ProgressBar.VISIBLE);
+                binding.pbLoading.setVisibility(ProgressBar.VISIBLE);
                 retryCount = 0;
                 Log.d(DEBUG, "Scroll initiated");
                 if (Connectivity.isConnected(getApplicationContext())) {
@@ -107,7 +108,7 @@ public class TimelineActivity extends AppCompatActivity {
             }
         };
         // Adds the scroll listener to RecyclerView
-        rvTweets.addOnScrollListener(scrollListener);
+        binding.rvTweets.addOnScrollListener(scrollListener);
     }
 
     private void fetchTimeline() {
@@ -147,7 +148,7 @@ public class TimelineActivity extends AppCompatActivity {
         int newSize = newTweets.size();
         currMaxId = newTweets.get(newSize-1).getUid()-1;
         tweetsArrayAdapter.notifyItemRangeInserted(curSize, newSize);
-        progressBar.setVisibility(ProgressBar.INVISIBLE);
+        binding.pbLoading.setVisibility(ProgressBar.INVISIBLE);
         handler.removeCallbacks(runnableCode);
     }
 
@@ -157,7 +158,7 @@ public class TimelineActivity extends AppCompatActivity {
         tweetsArrayAdapter.clearItems();
         scrollListener.resetState();
         hideRefreshControl();
-        progressBar.setVisibility(ProgressBar.VISIBLE);
+        binding.pbLoading.setVisibility(ProgressBar.VISIBLE);
 
         if (Connectivity.isConnected(this)) {
             fetchTimeline();
@@ -167,20 +168,20 @@ public class TimelineActivity extends AppCompatActivity {
     }
 
     private void hideRefreshControl() {
-        if (swipeContainer.isRefreshing()) {
-            swipeContainer.setRefreshing(false);
+        if (binding.swipeContainer.isRefreshing()) {
+            binding.swipeContainer.setRefreshing(false);
         }
     }
 
     private void setUpRefreshControl() {
-        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+        binding.swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 beginNewSearch();
             }
         });
         // Configure the refreshing colors
-        swipeContainer.setColorSchemeResources(android.R.color.holo_blue_bright,
+        binding.swipeContainer.setColorSchemeResources(android.R.color.holo_blue_bright,
                 android.R.color.holo_green_light,
                 android.R.color.holo_orange_light,
                 android.R.color.holo_red_light);

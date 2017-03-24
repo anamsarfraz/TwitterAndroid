@@ -4,6 +4,8 @@ android {
     compileSdkVersion 25
     buildToolsVersion "25.0.2"
 
+    dataBinding.enabled = true
+
     defaultConfig {
         applicationId "com.codepath.apps.twitter"
         minSdkVersion 19
