@@ -2,12 +2,21 @@ package com.codepath.apps.twitter.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.widget.Toast;
 
 import com.codepath.apps.twitter.R;
+import com.codepath.apps.twitter.models.User;
 import com.codepath.apps.twitter.util.TwitterClient;
 import com.codepath.oauth.OAuthLoginActionBarActivity;
+import com.loopj.android.http.JsonHttpResponseHandler;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import cz.msebera.android.httpclient.Header;
 
 
 public class LoginActivity extends OAuthLoginActionBarActivity<TwitterClient> {
@@ -33,8 +42,22 @@ public class LoginActivity extends OAuthLoginActionBarActivity<TwitterClient> {
 	// i.e Display application "homepage"
 	@Override
 	public void onLoginSuccess() {
-		Intent intent = new Intent(this, TimelineActivity.class);
-		startActivity(intent);
+		getClient().getLoggedInUser(new JsonHttpResponseHandler() {
+			@Override
+			public void onSuccess(int statusCode, Header[] headers, JSONObject jsonObject) {
+				User.setCurrentUser(new User(jsonObject));
+				Intent intent = new Intent(getApplicationContext(), TimelineActivity.class);
+				startActivity(intent);
+			}
+
+			@Override
+			public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+
+                Log.d("ERROR", "Error: "+errorResponse.toString());
+				Toast.makeText(getApplicationContext(), "Error logging in. Please try again", Toast.LENGTH_SHORT).show();
+			}
+		});
+
 	}
 
 	// OAuth authentication flow failed, handle the error

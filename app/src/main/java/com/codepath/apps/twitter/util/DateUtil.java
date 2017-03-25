@@ -3,14 +3,16 @@ package com.codepath.apps.twitter.util;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import android.text.format.DateUtils;
-import android.util.Log;
+import java.util.Date;
 
 import java.util.Locale;
 
 
 public class DateUtil {
+    static final String twitterFormat = "EEE MMM dd HH:mm:ss ZZZZZ yyyy";
+
     public static String getRelativeTimeAgo(String rawJsonDate) {
-        String twitterFormat = "EEE MMM dd HH:mm:ss ZZZZZ yyyy";
+
         SimpleDateFormat sf = new SimpleDateFormat(twitterFormat, Locale.ENGLISH);
         sf.setLenient(true);
 
@@ -33,5 +35,10 @@ public class DateUtil {
         } else {
             return String.format("%s%c", timeComponents[0], timeComponents[1].charAt(0));
         }
+    }
+
+    public static String getCurrentTime() {
+        SimpleDateFormat sdf = new SimpleDateFormat(twitterFormat);
+        return sdf.format(new Date());
     }
 }

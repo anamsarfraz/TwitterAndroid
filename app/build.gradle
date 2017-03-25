@@ -46,6 +46,7 @@ dependencies {
     annotationProcessor "com.github.Raizlabs.DBFlow:dbflow-processor:${dbflow_version}"
     compile "com.github.Raizlabs.DBFlow:dbflow-core:${dbflow_version}"
     compile "com.github.Raizlabs.DBFlow:dbflow:${dbflow_version}"
+    // If you want to use the GPU Filters
     compile 'com.codepath.libraries:android-oauth-handler:1.1.0'
     compile 'com.android.support:appcompat-v7:25.2.0'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
@@ -53,7 +54,6 @@ dependencies {
     compile 'com.jakewharton:butterknife:8.5.1'
     compile 'com.github.bumptech.glide:glide:3.7.0'
     compile 'jp.wasabeef:glide-transformations:2.0.2'
-    // If you want to use the GPU Filters
     compile 'jp.co.cyberagent.android.gpuimage:gpuimage-library:1.4.1'
     compile 'com.yqritc:android-scalablevideoview:1.0.4'
     compile 'com.android.support:recyclerview-v7:25.2.0'
@@ -65,10 +65,10 @@ dependencies {
     compile 'com.android.support:support-vector-drawable:25.2.0'
     compile 'com.android.support:animated-vector-drawable:25.2.0'
     compile 'com.loopj.android:android-async-http:1.4.9'
-    testCompile 'junit:junit:4.12'
-    annotationProcessor 'org.parceler:parceler:1.1.6'
-    annotationProcessor 'com.jakewharton:butterknife-compiler:8.5.1'
     compile 'com.google.android.exoplayer:exoplayer:r2.3.0'
     compile 'com.github.danylovolokh:video-player-manager:0.2.0'
     compile 'com.github.danylovolokh:list-visibility-utils:0.2.0'
+    testCompile 'junit:junit:4.12'
+    annotationProcessor 'org.parceler:parceler:1.1.6'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:8.5.1'
 }

@@ -5,4 +5,9 @@
     <string name="login_label">Connect With Twitter</string>
     <string name="title_activity_timeline">Home Timeline</string>
 
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="compose_hint">What\'s happening?</string>
+    <string name="tweet">Tweet</string>
+
 </resources>

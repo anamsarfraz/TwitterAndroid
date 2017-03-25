@@ -1,19 +1,35 @@
 package com.codepath.apps.twitter.models;
 
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.preference.PreferenceManager;
+
 import com.codepath.apps.twitter.databases.TwitterDatabase;
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;
+import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.parceler.Parcel;
+import org.parceler.Parcels;
+import org.parceler.Transient;
+
+import static com.raizlabs.android.dbflow.config.FlowManager.getContext;
 
 
 @Table(database = TwitterDatabase.class)
 @Parcel(analyze={User.class})
 public class User extends BaseModel {
+
+    @Transient
+    static User currentUser = null;
+
+    @Transient
+    final static SharedPreferences pref =
+            PreferenceManager.getDefaultSharedPreferences(getContext());
 
     // Define table fields
     @PrimaryKey
@@ -37,6 +53,26 @@ public class User extends BaseModel {
     boolean verified;
 
     // Getters and setters
+
+
+    public static User getCurrentUser() {
+        if (currentUser != null) {
+            return currentUser;
+        }
+
+        long currentUserId = pref.getLong("currentUserId", -1);
+        currentUser = byId(currentUserId);
+
+        return currentUser;
+    }
+
+    public static void setCurrentUser(User currentUser) {
+        User.currentUser = currentUser;
+        Editor edit = pref.edit();
+        currentUser.save();
+        edit.putLong("currentUserId", currentUser.uid);
+        edit.apply();
+    }
 
     public long getUid() {
         return uid;
@@ -105,5 +141,9 @@ public class User extends BaseModel {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    public static User byId(long uid) {
+        return new Select().from(User.class).where(User_Table.uid.eq(uid)).querySingle();
     }
 }

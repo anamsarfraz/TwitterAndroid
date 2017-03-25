@@ -3,6 +3,7 @@ package com.codepath.apps.twitter.activities;
 import android.databinding.DataBindingUtil;
 import android.os.Build;
 import android.os.Handler;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -10,11 +11,13 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.widget.AbsListView;
+import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.codepath.apps.twitter.R;
 import com.codepath.apps.twitter.adapters.TweetsArrayAdapter;
+import com.codepath.apps.twitter.fragments.ComposeFragment;
 import com.codepath.apps.twitter.models.Tweet;
 import com.codepath.apps.twitter.util.Connectivity;
 import com.codepath.apps.twitter.util.EndlessRecyclerViewScrollListener;
@@ -30,21 +33,12 @@ import cz.msebera.android.httpclient.Header;
 import java.util.ArrayList;
 import java.util.List;
 
-
-import static com.raizlabs.android.dbflow.config.FlowManager.getContext;
 import com.codepath.apps.twitter.databinding.ActivityTimelineBinding;
-import com.volokh.danylo.video_player_manager.manager.PlayerItemChangeListener;
-import com.volokh.danylo.video_player_manager.manager.SingleVideoPlayerManager;
-import com.volokh.danylo.video_player_manager.manager.VideoPlayerManager;
-import com.volokh.danylo.video_player_manager.meta.MetaData;
-import com.volokh.danylo.visibility_utils.calculator.DefaultSingleItemCalculatorCallback;
-import com.volokh.danylo.visibility_utils.calculator.ListItemsVisibilityCalculator;
-import com.volokh.danylo.visibility_utils.calculator.SingleListViewItemActiveCalculator;
-import com.volokh.danylo.visibility_utils.items.ListItem;
-import com.volokh.danylo.visibility_utils.scroll_utils.ItemsPositionGetter;
-import com.volokh.danylo.visibility_utils.scroll_utils.RecyclerViewItemPositionGetter;
 
-public class TimelineActivity extends AppCompatActivity {
+import static com.codepath.apps.twitter.R.string.tweet;
+
+
+public class TimelineActivity extends AppCompatActivity implements ComposeFragment.OnComposeListener {
 
     public static final String DEBUG = "DEBUG";
     public static final String ERROR = "ERROR";
@@ -60,25 +54,23 @@ public class TimelineActivity extends AppCompatActivity {
     LinearLayoutManager linearLayoutManager;
     private ActivityTimelineBinding binding;
 
-    // Video player setup
-    private final VideoPlayerManager<MetaData> videoPlayerManager = new SingleVideoPlayerManager(new PlayerItemChangeListener() {
-        @Override
-        public void onPlayerItemChanged(MetaData metaData) {
-
-        }
-    });
-    private int scrollState = AbsListView.OnScrollListener.SCROLL_STATE_IDLE;
-    private ListItemsVisibilityCalculator videoVisibilityCalculator;
-    private ItemsPositionGetter itemsPositionGetter;
-
     Handler handler;
-    final Runnable runnableCode = new Runnable() {
+    final Runnable fetchRunnable = new Runnable() {
 
         @Override
         public void run() {
             fetchTimeline();
         }
     };
+    final Runnable postTweetRunnable = new Runnable() {
+
+        @Override
+        public void run() {
+            postTweet();
+        }
+    };
+
+
 
     // Store a member variable for the listener
     private EndlessRecyclerViewScrollListener scrollListener;
@@ -96,43 +88,31 @@ public class TimelineActivity extends AppCompatActivity {
         setUpRecycleView();
         setUpRefreshControl();
         setUpScrollListeners();
+        setUpclickListeners();
 
         // fetch user timeline on first load
         beginNewSearch();
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        if(!tweets.isEmpty()){
-            // need to call this method from list view handler in order to have filled list
-
-            binding.rvTweets.post(new Runnable() {
-                @Override
-                public void run() {
-
-                    videoVisibilityCalculator.onScrollStateIdle(
-                            itemsPositionGetter,
-                            linearLayoutManager.findFirstVisibleItemPosition(),
-                            linearLayoutManager.findLastVisibleItemPosition());
-
-                }
-            });
-        }
+    private void setUpclickListeners() {
+        binding.fabCompose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showComposeDialog();
+            }
+        });
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        // we have to stop any playback in onStop
-        videoPlayerManager.resetMediaPlayer();
     }
 
     private void setUpRecycleView() {
         binding.rvTweets.setAdapter(tweetsArrayAdapter);
         linearLayoutManager = new LinearLayoutManager(this);
         binding.rvTweets.setLayoutManager(linearLayoutManager);
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(getContext(),
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(this,
                 LinearLayoutManager.VERTICAL);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -159,44 +139,15 @@ public class TimelineActivity extends AppCompatActivity {
         // Adds the scroll listener to RecyclerView
         binding.rvTweets.addOnScrollListener(scrollListener);
 
-        /*binding.rvTweets.addOnScrollListener(new RecyclerView.OnScrollListener() {
-
-            @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int scrollState) {
-                scrollState = scrollState;
-                if(scrollState == RecyclerView.SCROLL_STATE_IDLE && !tweets.isEmpty()){
-
-                    videoVisibilityCalculator.onScrollStateIdle(
-                            itemsPositionGetter,
-                            linearLayoutManager.findFirstVisibleItemPosition(),
-                            linearLayoutManager.findLastVisibleItemPosition());
-                }
-            }
-
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                if(!tweets.isEmpty()){
-                    videoVisibilityCalculator.onScroll(
-                            itemsPositionGetter,
-                            linearLayoutManager.findFirstVisibleItemPosition(),
-                            linearLayoutManager.findLastVisibleItemPosition() - linearLayoutManager.findFirstVisibleItemPosition() + 1,
-                            scrollState);
-                }
-            }
-        });
-        itemsPositionGetter = new RecyclerViewItemPositionGetter(linearLayoutManager, binding.rvTweets);
-
-
-        videoVisibilityCalculator = new SingleListViewItemActiveCalculator(new DefaultSingleItemCalculatorCallback(), tweets);
-        */
     }
 
     private void fetchTimeline() {
         client.getHomeTimeline(currMaxId, new JsonHttpResponseHandler() {
+            @Override
             public void onSuccess(int statusCode, Header[] headers, JSONArray jsonArray) {
                 hideRefreshControl();
                 Log.d("DEBUG", "timeline: " + jsonArray.toString());
-                List<Tweet> newTweets = Tweet.fromJSONArray(jsonArray, videoPlayerManager);
+                List<Tweet> newTweets = Tweet.fromJSONArray(jsonArray);
                 processFetchedTweets(newTweets);
             }
 
@@ -208,7 +159,7 @@ public class TimelineActivity extends AppCompatActivity {
 
                 if (errorCode == RATE_LIMIT_ERR && retryCount < RETRY_LIMIT) {
                     retryCount++;
-                    handler.postDelayed(runnableCode, DELAY_MILLI);
+                    handler.postDelayed(fetchRunnable, DELAY_MILLI);
                 } else {
                     fetchOffline();
                 }
@@ -223,13 +174,14 @@ public class TimelineActivity extends AppCompatActivity {
     }
 
     private void processFetchedTweets(List<Tweet> newTweets) {
+        retryCount = 0;
         int curSize = tweetsArrayAdapter.getItemCount();
         tweets.addAll(newTweets);
         int newSize = newTweets.size();
         currMaxId = newTweets.get(newSize-1).getUid()-1;
         tweetsArrayAdapter.notifyItemRangeInserted(curSize, newSize);
         binding.pbLoading.setVisibility(ProgressBar.INVISIBLE);
-        handler.removeCallbacks(runnableCode);
+        handler.removeCallbacks(fetchRunnable);
     }
 
     public void beginNewSearch() {
@@ -265,11 +217,46 @@ public class TimelineActivity extends AppCompatActivity {
                 android.R.color.holo_green_light,
                 android.R.color.holo_orange_light,
                 android.R.color.holo_red_light);
+    }
 
+    private void showComposeDialog() {
+        FragmentManager fm = getSupportFragmentManager();
+        ComposeFragment composeFragment = ComposeFragment.newInstance();
+        composeFragment.show(fm, "fragment_edit_name");
     }
 
     public void onLogout() {
         client.clearAccessToken();
     }
 
+    @Override
+    public void createTweet(Tweet tweet) {
+        tweets.add(0, tweet);
+        tweetsArrayAdapter.notifyItemInserted(0);
+        postTweet();
+
+    }
+
+    private void postTweet() {
+        client.postTweet(tweets.get(0).getBody(), new JsonHttpResponseHandler() {
+            public void onSuccess(int statusCode, Header[] headers, JSONObject jsonObject) {
+                Tweet.saveTweet(jsonObject);
+                handler.removeCallbacks(postTweetRunnable);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                Log.e(ERROR, "Error creating tweet: " + errorResponse.toString());
+                int errorCode = errorResponse.optJSONArray("errors").optJSONObject(0).optInt("code", 0);
+                if (errorCode == RATE_LIMIT_ERR && retryCount < RETRY_LIMIT) {
+                    retryCount++;
+                    handler.postDelayed(postTweetRunnable, DELAY_MILLI);
+                } else {
+                    Toast.makeText(getApplicationContext(), "Error creating tweet. Please try again", Toast.LENGTH_SHORT).show();
+                    retryCount = 0;
+                    handler.removeCallbacks(postTweetRunnable);
+                }
+            }
+        });
+    }
 }
