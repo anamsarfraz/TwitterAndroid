@@ -7,6 +7,8 @@ import java.util.Date;
 
 import java.util.Locale;
 
+import static android.R.id.input;
+
 
 public class DateUtil {
     static final String twitterFormat = "EEE MMM dd HH:mm:ss ZZZZZ yyyy";
@@ -41,4 +43,18 @@ public class DateUtil {
         SimpleDateFormat sdf = new SimpleDateFormat(twitterFormat);
         return sdf.format(new Date());
     }
+
+    public static String getDateTimeInFormat(String inputStrDate, String outputFormat) {
+        SimpleDateFormat sdf = new SimpleDateFormat(twitterFormat);
+        try {
+            Date inputDate = sdf.parse(inputStrDate);
+            SimpleDateFormat osdf = new SimpleDateFormat(outputFormat);
+            return osdf.format(inputDate);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
 }

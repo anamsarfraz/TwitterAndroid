@@ -1,10 +1,8 @@
 package com.codepath.apps.twitter.activities;
 
+import android.app.ActivityOptions;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
-import android.graphics.drawable.Drawable;
-import android.media.Image;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.support.design.widget.AppBarLayout;
@@ -36,6 +34,7 @@ import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.parceler.Parcels;
 
 import cz.msebera.android.httpclient.Header;
 import jp.wasabeef.glide.transformations.CropCircleTransformation;
@@ -98,7 +97,7 @@ public class TimelineActivity extends AppCompatActivity implements ComposeFragme
         setUpRecycleView();
         setUpRefreshControl();
         setUpScrollListeners();
-        setUpclickListeners();
+        setUpClickListeners();
         loadUserProfileImage();
 
         // fetch user timeline on first load
@@ -166,7 +165,7 @@ public class TimelineActivity extends AppCompatActivity implements ComposeFragme
         }
     }
 
-    private void setUpclickListeners() {
+    private void setUpClickListeners() {
         binding.fabCompose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -178,6 +177,19 @@ public class TimelineActivity extends AppCompatActivity implements ComposeFragme
             @Override
             public void onClick(View v) {
                 logout();
+            }
+        });
+
+        tweetsArrayAdapter.setOnItemClickListener(new TweetsArrayAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View itemView, int position) {
+
+                Intent intent = new Intent(TimelineActivity.this, TweetDetailActivity.class);
+                intent.putExtra("tweet", Parcels.wrap(tweets.get(position)));
+
+                Bundle animationBundle =
+                        ActivityOptions.makeCustomAnimation(getApplicationContext(), R.anim.slide_from_left,R.anim.slide_to_left).toBundle();
+                startActivity(intent, animationBundle);
             }
         });
     }
@@ -233,7 +245,7 @@ public class TimelineActivity extends AppCompatActivity implements ComposeFragme
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
                 hideRefreshControl();
-                Log.e(ERROR, "Error fetching timeline: " + errorResponse.toString());
+                Log.e(ERROR, "Error fetching timeline: " + errorResponse == null ? "Uknown error" : errorResponse.toString());
                 int errorCode = errorResponse.optJSONArray("errors").optJSONObject(0).optInt("code", 0);
 
                 if (errorCode == RATE_LIMIT_ERR && retryCount < RETRY_LIMIT) {

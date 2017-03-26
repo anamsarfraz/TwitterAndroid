@@ -51,12 +51,12 @@
             android:background="@android:color/transparent"
             />
 
-        <View
-            android:id="@+id/tvDivider"
+        <include
             android:layout_width="fill_parent"
             android:layout_height="1dp"
+            layout="@layout/divider_line"
             android:layout_above="@+id/bnvCompose"
-            android:background="#E8E8E8" />
+            />
         <android.support.design.widget.BottomNavigationView
             android:id="@+id/bnvCompose"
             android:layout_width="wrap_content"

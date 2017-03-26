@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fitsSystemWindows="true">
+
+                <android.support.design.widget.AppBarLayout
+                    android:id="@+id/abDetail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <android.support.v7.widget.Toolbar
+                        android:id="@+id/tbDetail"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@android:color/white"
+                        android:minHeight="?attr/actionBarSize">
+
+                        <TextView
+                            android:id="@+id/tvTbTitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@android:color/black" />
+                    </android.support.v7.widget.Toolbar>
+                </android.support.design.widget.AppBarLayout>
+                <ImageView
+                    android:id="@+id/ivProfileDetailImage"
+                    android:padding="10dp"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_alignParentStart="true"
+                    android:layout_margin="10dp"
+                    android:layout_below="@id/abDetail"
+                    app:srcCompat="@drawable/ic_launcher">
+                </ImageView>
+                <TextView
+                    android:id="@+id/tvDetailUserName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignTop="@+id/ivProfileDetailImage"
+                    android:layout_toEndOf="@+id/ivProfileDetailImage"
+                    android:textColor="@android:color/black"
+                    android:textStyle="bold"
+                    tools:text="CNN"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:drawableEnd="@drawable/verified_user"/>
+                <TextView
+                    android:id="@+id/tvDetailScreenName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:text="\@CNN"
+                    android:layout_below="@+id/tvDetailUserName"
+                    android:layout_alignStart="@id/tvDetailUserName"
+                    android:layout_marginTop="@dimen/margin8"
+                    android:maxLines="1"
+                    android:ellipsize="end"/>
+                <TextView
+                    android:id="@+id/tvDetailBody"
+                    android:layout_below="@+id/ivProfileDetailImage"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/black"
+                    tools:text="Samsung is known around the world for its smartphones. But in South Korea, it's a lot more than just a tech brand http://cnn.it/2mMWwRT "
+                    android:autoLink="all"
+                    android:linksClickable="true"
+                    android:textColorLink="@android:color/holo_blue_light"
+                    android:layout_margin="10dp"/>
+                <ImageView
+                    android:id="@+id/ivDetailMultiMedia"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignStart="@+id/tvDetailBody"
+                    android:layout_alignEnd="@id/tvDetailBody"
+                    android:layout_below="@+id/tvDetailBody"
+                    android:layout_marginBottom="@dimen/margin8"
+                    android:adjustViewBounds="true"
+                    android:scaleType="fitXY"
+                    tools:src="@drawable/tweet_social"
+                    />
+                <TextView
+                    android:id="@+id/tvDetailTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignStart="@+id/tvDetailBody"
+                    android:layout_below="@id/ivDetailMultiMedia"
+                    tools:text="9:48 AM"
+                    android:drawableEnd="@drawable/dot_divider"
+                    android:drawablePadding="@dimen/padding4"
+                    android:layout_marginBottom="@dimen/margin8"
+                    />
+                <TextView
+                    android:id="@+id/tvDetailDate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toEndOf="@id/tvDetailTime"
+                    android:layout_alignTop="@id/tvDetailTime"
+                    android:layout_marginStart="@dimen/margin4"
+                    tools:text="24 Jan 17" />
+                <include
+                    android:id="@+id/ld_detail1"
+                    android:layout_width="fill_parent"
+                    android:layout_height="1dp"
+                    layout="@layout/divider_line"
+                    android:layout_below="@+id/tvDetailTime"
+                    android:layout_marginBottom="@dimen/margin8" />
+                <TextView
+                    android:id="@+id/tvRetweets"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/ld_detail1"
+                    android:layout_alignStart="@+id/tvDetailTime"
+                    android:layout_marginBottom="@dimen/margin8"
+                    android:layout_marginEnd="@dimen/margin16"
+                    tools:text="599 RETWEETS"/>
+                <TextView
+                    android:id="@+id/tvLikes"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignTop="@+id/tvRetweets"
+                    android:layout_toEndOf="@id/tvRetweets"
+                    tools:text="692 LIKES"/>
+                <include
+                    android:id="@+id/ld_detail2"
+                    android:layout_width="fill_parent"
+                    android:layout_height="1dp"
+                    layout="@layout/divider_line"
+                    android:layout_below="@+id/tvRetweets"
+                    android:layout_marginBottom="@dimen/margin8" />
+                <Button
+                    android:id="@+id/btnReplyDetail"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_below="@+id/ld_detail2"
+                    android:layout_marginStart="@dimen/margin48"
+                    android:layout_marginBottom="@dimen/margin8"
+                    android:background="@drawable/reply_default"/>
+                <Button
+                    android:id="@+id/btnRetweetDetail"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_below="@+id/ld_detail2"
+                    android:layout_centerHorizontal="true"
+                    android:background="@drawable/retweet_default"/>
+                <Button
+                    android:id="@+id/btnLikeDetail"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_below="@+id/ld_detail2"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginEnd="@dimen/margin48"
+                    android:background="@drawable/like_default"/>
+                <include
+                    android:id="@+id/ld_detail3"
+                    android:layout_width="fill_parent"
+                    android:layout_height="1dp"
+                    layout="@layout/divider_line"
+                    android:layout_below="@+id/btnReplyDetail"
+                    android:layout_marginBottom="@dimen/margin8" />
+
+            </RelativeLayout>
+        </ScrollView>
+
+        <android.support.design.widget.BottomNavigationView
+            android:id="@+id/bnvReply"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_marginTop="@dimen/margin8"
+            android:layout_alignParentEnd="true"
+            >
+
+            <EditText
+                android:id="@+id/etReply"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:textColor="@android:color/darker_gray"
+                android:background="#FAFAFA"
+                tools:text="Reply @CNN"/>
+            <Button
+                android:id="@+id/btnExpand"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_gravity="end"
+                android:background="@drawable/expand_icon"
+                />
+        </android.support.design.widget.BottomNavigationView>
+    </RelativeLayout>
+</layout>

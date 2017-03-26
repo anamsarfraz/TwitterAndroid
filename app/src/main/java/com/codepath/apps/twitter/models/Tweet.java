@@ -50,6 +50,19 @@ public class Tweet extends BaseModel{
     @ForeignKey(saveForeignKeyModel = true)
     Media media;
 
+    @Column
+    long retweetCount;
+
+    @Column
+    long favoriteCount;
+
+    @Column
+    boolean favorited;
+
+    @Column
+    boolean retweeted;
+
+
 
     public Tweet() {
         super();
@@ -80,6 +93,11 @@ public class Tweet extends BaseModel{
                 }
 
             }
+            this.retweetCount = jsonObject.getInt("retweet_count");
+            this.favoriteCount = jsonObject.getInt("favorite_count");
+            this.retweeted = jsonObject.getBoolean("retweeted");
+            this.favorited = jsonObject.getBoolean("favorited");
+
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -144,6 +162,38 @@ public class Tweet extends BaseModel{
 
     public void setMedia(Media media) {
         this.media = media;
+    }
+
+    public long getRetweetCount() {
+        return retweetCount;
+    }
+
+    public void setRetweetCount(long retweetCount) {
+        this.retweetCount = retweetCount;
+    }
+
+    public long getFavoriteCount() {
+        return favoriteCount;
+    }
+
+    public void setFavoriteCount(long favoriteCount) {
+        this.favoriteCount = favoriteCount;
+    }
+
+    public boolean isFavorited() {
+        return favorited;
+    }
+
+    public void setFavorited(boolean favorited) {
+        this.favorited = favorited;
+    }
+
+    public boolean isRetweeted() {
+        return retweeted;
+    }
+
+    public void setRetweeted(boolean retweeted) {
+        this.retweeted = retweeted;
     }
 
     public static ArrayList<Tweet> fromJSONArray(JSONArray jsonArray) {
