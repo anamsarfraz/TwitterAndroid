@@ -2,10 +2,14 @@ package com.codepath.apps.twitter.activities;
 
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
+import android.graphics.drawable.Drawable;
+import android.media.Image;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
+import android.support.design.widget.AppBarLayout;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -14,16 +18,17 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.codepath.apps.twitter.R;
 import com.codepath.apps.twitter.adapters.TweetsArrayAdapter;
 import com.codepath.apps.twitter.fragments.ComposeFragment;
 import com.codepath.apps.twitter.models.Tweet;
 import com.codepath.apps.twitter.models.User;
 import com.codepath.apps.twitter.util.Connectivity;
-import com.codepath.apps.twitter.util.DateUtil;
 import com.codepath.apps.twitter.util.EndlessRecyclerViewScrollListener;
 import com.codepath.apps.twitter.util.TwitterApplication;
 import com.codepath.apps.twitter.util.TwitterClient;
@@ -33,13 +38,12 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import cz.msebera.android.httpclient.Header;
+import jp.wasabeef.glide.transformations.CropCircleTransformation;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import com.codepath.apps.twitter.databinding.ActivityTimelineBinding;
-
-import static com.codepath.apps.twitter.R.string.tweet;
 
 
 public class TimelineActivity extends AppCompatActivity implements ComposeFragment.OnComposeListener {
@@ -89,14 +93,57 @@ public class TimelineActivity extends AppCompatActivity implements ComposeFragme
         tweetsArrayAdapter = new TweetsArrayAdapter(this, tweets);
         handler = new Handler();
 
+        setToolbarScroll();
         processSendIntent();
         setUpRecycleView();
         setUpRefreshControl();
         setUpScrollListeners();
         setUpclickListeners();
+        loadUserProfileImage();
 
         // fetch user timeline on first load
         beginNewSearch();
+    }
+
+    private void setToolbarScroll() {
+        binding.abTimeline.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
+            int scrollRange = -1;
+
+
+            @Override
+            public void onOffsetChanged(final AppBarLayout appBarLayout, int verticalOffset) {
+                //Initialize the size of the scroll
+                if (scrollRange == -1) {
+                    scrollRange = appBarLayout.getTotalScrollRange();
+                }
+                binding.tbViews.ivAppIcon.setImageResource(android.R.color.transparent);
+                //Check if the view is collapsed
+                if (scrollRange + verticalOffset == 0) {
+                    binding.tbTimeline.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.twitter_blue));
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        binding.tbViews.ivAppIcon.setBackgroundResource(R.drawable.tweet_social_white);
+                    }
+
+                }else{
+                    binding.tbTimeline.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), android.R.color.white));
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        binding.tbViews.ivAppIcon.setBackgroundResource(R.drawable.tweet_social);
+                    }
+
+                }
+            }
+        });
+    }
+
+
+    private void loadUserProfileImage() {
+        ImageView imgView = (ImageView) findViewById(R.id.ivUserImageTimeline);
+        Glide.with(this)
+                .load(User.getCurrentUser().getProfileImageUrl())
+                .bitmapTransform(new CropCircleTransformation(this))
+                .placeholder(R.drawable.tweet_social)
+                .crossFade()
+                .into(imgView);
     }
 
     private void processSendIntent() {
@@ -124,6 +171,13 @@ public class TimelineActivity extends AppCompatActivity implements ComposeFragme
             @Override
             public void onClick(View v) {
                 showComposeDialog(null);
+            }
+        });
+
+        binding.tbViews.btnLogout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                logout();
             }
         });
     }
@@ -250,8 +304,10 @@ public class TimelineActivity extends AppCompatActivity implements ComposeFragme
         composeFragment.show(fm, "fragment_edit_name");
     }
 
-    public void onLogout() {
+    public void logout() {
+
         client.clearAccessToken();
+        finish();
     }
 
     @Override

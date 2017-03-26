@@ -8,6 +8,7 @@
         android:layout_height="match_parent"
         tools:context="com.codepath.apps.twitter.activities.TimelineActivity">
         <android.support.design.widget.AppBarLayout
+            android:id="@+id/abTimeline"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fitsSystemWindows="true">
@@ -15,10 +16,17 @@
             <android.support.v7.widget.Toolbar
                 android:id="@+id/tbTimeline"
                 android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
+                android:layout_height="wrap_content"
                 app:layout_scrollFlags="scroll|enterAlways|exitUntilCollapsed"
                 android:background="@android:color/white"
-                android:minHeight="40dp"/>
+                android:minHeight="50dp">
+                <include android:id="@+id/tbViews"
+                    layout="@layout/layout_toolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    />
+
+            </android.support.v7.widget.Toolbar>
         </android.support.design.widget.AppBarLayout>
         <android.support.v4.widget.SwipeRefreshLayout
             xmlns:android="http://schemas.android.com/apk/res/android"
