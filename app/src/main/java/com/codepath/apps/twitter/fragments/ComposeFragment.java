@@ -34,8 +34,12 @@ import com.codepath.apps.twitter.models.Tweet;
 import com.codepath.apps.twitter.models.User;
 import com.codepath.apps.twitter.util.DateUtil;
 
+import org.parceler.Parcels;
+
 import jp.wasabeef.glide.transformations.RoundedCornersTransformation;
 
+import static android.app.Activity.RESULT_OK;
+import static com.codepath.apps.twitter.R.id.btnDrafts;
 import static com.codepath.apps.twitter.R.id.ivProfileImage;
 import static com.codepath.apps.twitter.R.string.tweet;
 
@@ -45,6 +49,7 @@ public class ComposeFragment extends DialogFragment implements ConfirmationFragm
     final static String DEBUG = "DEBUG";
     private static final int MAX_COUNT = 140;
     private static final int PROFILE_IMG_ROUND = 4;
+    private final int REQUEST_CODE = 20;
     private static final String COMPOSE_TEXT = "compose_text";
 
     private FragmentComposeBinding binding;
@@ -117,7 +122,7 @@ public class ComposeFragment extends DialogFragment implements ConfirmationFragm
                 Intent intent = new Intent(getActivity(), DraftActivity.class);
                 Bundle animationBundle =
                         ActivityOptions.makeCustomAnimation(getContext(), R.anim.slide_from_left,R.anim.slide_to_left).toBundle();
-                startActivity(intent, animationBundle);
+                startActivityForResult(intent, REQUEST_CODE, animationBundle);
             }
         });
 
@@ -248,6 +253,24 @@ public class ComposeFragment extends DialogFragment implements ConfirmationFragm
         dismiss();
 
 
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK && requestCode == REQUEST_CODE) {
+            Draft draft = Parcels.unwrap(data.getParcelableExtra("draft"));
+            String draftText = draft.getDraft();
+
+            disableSelection = false;
+            tvCharCount.setText(String.format("%d", MAX_COUNT-draftText.length()));
+            etCompose.setTextColor(ContextCompat.getColor(getContext(), android.R.color.black));
+            etCompose.setText(draft.getDraft());
+            etCompose.setSelection(draftText.length());
+            binding.btnDrafts.setVisibility(View.GONE);
+
+            draft.delete();
+        }
     }
 
     public interface OnComposeListener {
