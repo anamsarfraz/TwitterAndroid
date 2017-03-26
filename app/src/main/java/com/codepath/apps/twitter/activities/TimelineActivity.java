@@ -1,6 +1,8 @@
 package com.codepath.apps.twitter.activities;
 
+import android.content.Intent;
 import android.databinding.DataBindingUtil;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.support.v4.app.FragmentManager;
@@ -19,7 +21,9 @@ import com.codepath.apps.twitter.R;
 import com.codepath.apps.twitter.adapters.TweetsArrayAdapter;
 import com.codepath.apps.twitter.fragments.ComposeFragment;
 import com.codepath.apps.twitter.models.Tweet;
+import com.codepath.apps.twitter.models.User;
 import com.codepath.apps.twitter.util.Connectivity;
+import com.codepath.apps.twitter.util.DateUtil;
 import com.codepath.apps.twitter.util.EndlessRecyclerViewScrollListener;
 import com.codepath.apps.twitter.util.TwitterApplication;
 import com.codepath.apps.twitter.util.TwitterClient;
@@ -85,6 +89,7 @@ public class TimelineActivity extends AppCompatActivity implements ComposeFragme
         tweetsArrayAdapter = new TweetsArrayAdapter(this, tweets);
         handler = new Handler();
 
+        processSendIntent();
         setUpRecycleView();
         setUpRefreshControl();
         setUpScrollListeners();
@@ -94,11 +99,31 @@ public class TimelineActivity extends AppCompatActivity implements ComposeFragme
         beginNewSearch();
     }
 
+    private void processSendIntent() {
+        // Get intent, action and MIME type
+        Intent intent = getIntent();
+        String action = intent.getAction();
+        String type = intent.getType();
+
+        if (Intent.ACTION_SEND.equals(action) && type != null) {
+            Log.d(DEBUG, "Share Intent received");
+            if ("text/plain".equals(type)) {
+
+                // Make sure to check whether returned data will be null.
+                String titleOfPage = intent.getStringExtra(Intent.EXTRA_SUBJECT);
+                String urlOfPage = intent.getStringExtra(Intent.EXTRA_TEXT);
+
+                String sharedContent = String.format("%s\n%s", titleOfPage, urlOfPage);
+                showComposeDialog(sharedContent);
+            }
+        }
+    }
+
     private void setUpclickListeners() {
         binding.fabCompose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showComposeDialog();
+                showComposeDialog(null);
             }
         });
     }
@@ -219,9 +244,9 @@ public class TimelineActivity extends AppCompatActivity implements ComposeFragme
                 android.R.color.holo_red_light);
     }
 
-    private void showComposeDialog() {
+    private void showComposeDialog(String shareContent) {
         FragmentManager fm = getSupportFragmentManager();
-        ComposeFragment composeFragment = ComposeFragment.newInstance();
+        ComposeFragment composeFragment = ComposeFragment.newInstance(shareContent);
         composeFragment.show(fm, "fragment_edit_name");
     }
 

@@ -42,6 +42,7 @@ import static android.app.Activity.RESULT_OK;
 import static com.codepath.apps.twitter.R.id.btnDrafts;
 import static com.codepath.apps.twitter.R.id.ivProfileImage;
 import static com.codepath.apps.twitter.R.string.tweet;
+import static com.codepath.apps.twitter.models.Draft_Table.draft;
 
 
 public class ComposeFragment extends DialogFragment implements ConfirmationFragment.UpdateDraftDialogListener {
@@ -61,18 +62,25 @@ public class ComposeFragment extends DialogFragment implements ConfirmationFragm
 
     private OnComposeListener composeListener;
     InputMethodManager inputMgr;
+    String sharedContent;
 
 
     public ComposeFragment() {
         // Required empty public constructor
     }
 
-    public static ComposeFragment newInstance() {
-        return new ComposeFragment();
+    public static ComposeFragment newInstance(String sharedContent) {
+        Bundle args = new Bundle();
+        ComposeFragment composeFragment = new ComposeFragment();
+        args.putString("sharedContent", sharedContent);
+        composeFragment.setArguments(args);
+
+        return composeFragment;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        this.sharedContent = getArguments().getString("sharedContent", null);
         super.onCreate(savedInstanceState);
         setStyle(DialogFragment.STYLE_NORMAL, R.style.ComposeDialog);
         inputMgr = (InputMethodManager)getActivity().getSystemService(
@@ -134,14 +142,22 @@ public class ComposeFragment extends DialogFragment implements ConfirmationFragm
                 .into(binding.ivUserProfileImage);
 
 
-        Log.d(DEBUG, "compose text null");
-        disableSelection = true;
-        etCompose.setText(getString(R.string.compose_hint));
-        etCompose.setSelection(0);
-        etCompose.setTextColor(ContextCompat.getColor(getContext(), android.R.color.darker_gray));
-        btnTweet.setEnabled(false);
-        btnTweet.setAlpha((float)0.7);
-        tvCharCount.setText(String.format("%d", MAX_COUNT));
+        if (sharedContent != null) {
+            disableSelection = false;
+            tvCharCount.setText(String.format("%d", MAX_COUNT-sharedContent.length()));
+            etCompose.setTextColor(ContextCompat.getColor(getContext(), android.R.color.black));
+            etCompose.setText(sharedContent);
+            etCompose.setSelection(sharedContent.length());
+        } else {
+            disableSelection = true;
+            etCompose.setText(getString(R.string.compose_hint));
+            etCompose.setSelection(0);
+            etCompose.setTextColor(ContextCompat.getColor(getContext(), android.R.color.darker_gray));
+            btnTweet.setEnabled(false);
+            btnTweet.setAlpha((float)0.7);
+            tvCharCount.setText(String.format("%d", MAX_COUNT));
+        }
+
 
         etCompose.setOnClickListener(new View.OnClickListener() {
             @Override
