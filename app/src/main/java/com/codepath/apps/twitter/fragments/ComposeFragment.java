@@ -1,7 +1,9 @@
 package com.codepath.apps.twitter.fragments;
 
+import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
@@ -25,7 +27,9 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.codepath.apps.twitter.R;
+import com.codepath.apps.twitter.activities.DraftActivity;
 import com.codepath.apps.twitter.databinding.FragmentComposeBinding;
+import com.codepath.apps.twitter.models.Draft;
 import com.codepath.apps.twitter.models.Tweet;
 import com.codepath.apps.twitter.models.User;
 import com.codepath.apps.twitter.util.DateUtil;
@@ -51,7 +55,6 @@ public class ComposeFragment extends DialogFragment implements ConfirmationFragm
 
 
     private OnComposeListener composeListener;
-    private SharedPreferences composeSettings;
     InputMethodManager inputMgr;
 
 
@@ -67,7 +70,6 @@ public class ComposeFragment extends DialogFragment implements ConfirmationFragm
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setStyle(DialogFragment.STYLE_NORMAL, R.style.ComposeDialog);
-        composeSettings = PreferenceManager.getDefaultSharedPreferences(getActivity());
         inputMgr = (InputMethodManager)getActivity().getSystemService(
                 Context.INPUT_METHOD_SERVICE);
     }
@@ -107,6 +109,18 @@ public class ComposeFragment extends DialogFragment implements ConfirmationFragm
         super.onViewCreated(view, savedInstanceState);
 
 
+
+        binding.btnDrafts.setVisibility(Draft.getDraftCount() <= 0 ? View.GONE: View.VISIBLE);
+        binding.btnDrafts.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), DraftActivity.class);
+                Bundle animationBundle =
+                        ActivityOptions.makeCustomAnimation(getContext(), R.anim.slide_from_left,R.anim.slide_to_left).toBundle();
+                startActivity(intent, animationBundle);
+            }
+        });
+
         Glide.with(getContext())
                 .load(User.getCurrentUser().getProfileImageUrl())
                 .bitmapTransform(new RoundedCornersTransformation(getContext(), PROFILE_IMG_ROUND, 0))
@@ -115,27 +129,14 @@ public class ComposeFragment extends DialogFragment implements ConfirmationFragm
                 .into(binding.ivUserProfileImage);
 
 
-        String composeString = composeSettings.getString(COMPOSE_TEXT, null);
-        if (composeString == null) {
-            Log.d(DEBUG, "compose text null");
-            disableSelection = true;
-            etCompose.setText(getString(R.string.compose_hint));
-            etCompose.setSelection(0);
-            etCompose.setTextColor(ContextCompat.getColor(getContext(), android.R.color.darker_gray));
-            btnTweet.setEnabled(false);
-            btnTweet.setAlpha((float)0.7);
-            tvCharCount.setText(String.format("%d", MAX_COUNT));
-
-
-        } else {
-            disableSelection = false;
-            etCompose.setText(composeString);
-            etCompose.setTextColor(ContextCompat.getColor(getContext(), android.R.color.black));
-            btnTweet.setEnabled(false);
-            btnTweet.setAlpha((float)1.0);
-            tvCharCount.setText(String.format("%d", MAX_COUNT-composeString.length()));
-
-        }
+        Log.d(DEBUG, "compose text null");
+        disableSelection = true;
+        etCompose.setText(getString(R.string.compose_hint));
+        etCompose.setSelection(0);
+        etCompose.setTextColor(ContextCompat.getColor(getContext(), android.R.color.darker_gray));
+        btnTweet.setEnabled(false);
+        btnTweet.setAlpha((float)0.7);
+        tvCharCount.setText(String.format("%d", MAX_COUNT));
 
         etCompose.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -228,7 +229,7 @@ public class ComposeFragment extends DialogFragment implements ConfirmationFragm
                     confirmationFragment.setTargetFragment(ComposeFragment.this, 300);
                     confirmationFragment.show(fm, "fragment_confirmation");
                 } else {
-                    updateComposeDraft(DialogInterface.BUTTON_NEGATIVE);
+                    dismiss();
                 }
             }
         });
@@ -238,23 +239,14 @@ public class ComposeFragment extends DialogFragment implements ConfirmationFragm
 
     }
 
-    private void updateComposeDraft(int position) {
-        SharedPreferences.Editor editor = composeSettings.edit();
-        if (position == DialogInterface.BUTTON_POSITIVE) {
-            editor.putString(COMPOSE_TEXT, etCompose.getText().toString());
-        } else {
-            Log.d(DEBUG, "Remving compose");
-            editor.remove(COMPOSE_TEXT);
-        }
-
-        editor.apply();
-        dismiss();
-
-    }
-
     @Override
     public void onConfirmUpdateDialog(int position) {
-        updateComposeDraft(position);
+        if (position == DialogInterface.BUTTON_POSITIVE) {
+            Draft.saveDraft(etCompose.getText().toString());
+        }
+
+        dismiss();
+
 
     }
 

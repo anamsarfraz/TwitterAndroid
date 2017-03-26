@@ -5,12 +5,18 @@
             Theme customizations available in newer API levels can go in
             res/values-vXX/styles.xml, while customizations related to
             backward-compatibility can go here.
+
         -->
     </style>
 
     <!-- Application theme. -->
     <style name="AppTheme" parent="AppBaseTheme">
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
+    </style>
+
+    <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
     </style>
 
     <style name="ComposeDialog" parent="Theme.AppCompat.Dialog" >
@@ -34,6 +40,12 @@
         <item name="android:layout_marginStart">20dp</item>
         <item name="android:background">@android:color/transparent</item>
         <item name="android:textColor">#1da1f2</item>
+    </style>
+
+    <style name="CustomActionBar" parent="AppBaseTheme">
+        <item name="android:textColor">@android:color/black</item>
+        <item name="android:colorBackground">@android:color/white</item>
+
     </style>
 
 </resources>
