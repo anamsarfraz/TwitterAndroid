@@ -15,7 +15,9 @@
             android:layout_alignParentEnd="true"
             android:layout_alignParentTop="true"
             tools:src="@drawable/ic_launcher"
+        android:scaleType="fitXY"
             />
+
 
         <Button
             android:id="@+id/btnCancel"

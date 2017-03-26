@@ -23,18 +23,24 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.codepath.apps.twitter.R;
 import com.codepath.apps.twitter.databinding.FragmentComposeBinding;
 import com.codepath.apps.twitter.models.Tweet;
 import com.codepath.apps.twitter.models.User;
 import com.codepath.apps.twitter.util.DateUtil;
 
+import jp.wasabeef.glide.transformations.RoundedCornersTransformation;
+
+import static com.codepath.apps.twitter.R.id.ivProfileImage;
+import static com.codepath.apps.twitter.R.string.tweet;
 
 
 public class ComposeFragment extends DialogFragment implements ConfirmationFragment.UpdateDraftDialogListener {
 
     final static String DEBUG = "DEBUG";
     private static final int MAX_COUNT = 140;
+    private static final int PROFILE_IMG_ROUND = 4;
     private static final String COMPOSE_TEXT = "compose_text";
 
     private FragmentComposeBinding binding;
@@ -100,6 +106,13 @@ public class ComposeFragment extends DialogFragment implements ConfirmationFragm
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+
+        Glide.with(getContext())
+                .load(User.getCurrentUser().getProfileImageUrl())
+                .bitmapTransform(new RoundedCornersTransformation(getContext(), PROFILE_IMG_ROUND, 0))
+                .placeholder(R.drawable.tweet_social)
+                .crossFade()
+                .into(binding.ivUserProfileImage);
 
 
         String composeString = composeSettings.getString(COMPOSE_TEXT, null);
