@@ -10,5 +10,6 @@
     <dimen name="margin48">48dp</dimen>
     <dimen name="padding4">4dp</dimen>
     <dimen name="margin100">100dp</dimen>
+    <dimen name="padding10">10dp</dimen>
 
 </resources>

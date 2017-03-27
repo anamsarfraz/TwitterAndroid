@@ -53,7 +53,7 @@ public class LoginActivity extends OAuthLoginActionBarActivity<TwitterClient> {
 			@Override
 			public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
 
-                Log.d("ERROR", "Error: "+errorResponse.toString());
+                Log.d("ERROR", "Error logging in : "+(errorResponse == null ? "Unknown error" : errorResponse.toString()));
 				Toast.makeText(getApplicationContext(), "Error logging in. Please try again", Toast.LENGTH_SHORT).show();
 			}
 		});

@@ -39,11 +39,6 @@ import org.parceler.Parcels;
 import jp.wasabeef.glide.transformations.RoundedCornersTransformation;
 
 import static android.app.Activity.RESULT_OK;
-import static com.codepath.apps.twitter.R.id.btnDrafts;
-import static com.codepath.apps.twitter.R.id.ivProfileImage;
-import static com.codepath.apps.twitter.R.string.tweet;
-import static com.codepath.apps.twitter.models.Draft_Table.draft;
-
 
 public class ComposeFragment extends DialogFragment implements ConfirmationFragment.UpdateDraftDialogListener {
 

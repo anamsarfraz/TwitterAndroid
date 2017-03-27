@@ -313,7 +313,7 @@ public class TimelineActivity extends AppCompatActivity implements ComposeFragme
     private void showComposeDialog(String shareContent) {
         FragmentManager fm = getSupportFragmentManager();
         ComposeFragment composeFragment = ComposeFragment.newInstance(shareContent);
-        composeFragment.show(fm, "fragment_edit_name");
+        composeFragment.show(fm, "fragment_compose");
     }
 
     public void logout() {
@@ -331,7 +331,7 @@ public class TimelineActivity extends AppCompatActivity implements ComposeFragme
     }
 
     private void postTweet() {
-        client.postTweet(tweets.get(0).getBody(), new JsonHttpResponseHandler() {
+        client.postTweet(tweets.get(0).getBody(), null, new JsonHttpResponseHandler() {
             public void onSuccess(int statusCode, Header[] headers, JSONObject jsonObject) {
                 Tweet.saveTweet(jsonObject);
                 handler.removeCallbacks(postTweetRunnable);

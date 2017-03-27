@@ -41,6 +41,7 @@
                     android:layout_alignParentStart="true"
                     android:layout_margin="10dp"
                     android:layout_below="@id/abDetail"
+                    android:scaleType="fitXY"
                     app:srcCompat="@drawable/ic_launcher">
                 </ImageView>
                 <TextView
@@ -61,7 +62,7 @@
                     tools:text="\@CNN"
                     android:layout_below="@+id/tvDetailUserName"
                     android:layout_alignStart="@id/tvDetailUserName"
-                    android:layout_marginTop="@dimen/margin8"
+                    android:layout_marginTop="@dimen/margin4"
                     android:maxLines="1"
                     android:ellipsize="end"/>
                 <TextView
@@ -177,23 +178,69 @@
             android:layout_alignParentBottom="true"
             android:layout_marginTop="@dimen/margin8"
             android:layout_alignParentEnd="true"
-            >
+            android:background="#FAFAFA"
+            android:backgroundTint="#FAFAFA"
 
-            <EditText
-                android:id="@+id/etReply"
+            tools:targetApi="lollipop">
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="start"
-                android:textColor="@android:color/darker_gray"
-                android:background="#FAFAFA"
-                tools:text="Reply @CNN"/>
-            <Button
-                android:id="@+id/btnExpand"
-                android:layout_width="25dp"
-                android:layout_height="25dp"
-                android:layout_gravity="end"
-                android:background="@drawable/expand_icon"
-                />
+                android:padding="@dimen/padding10">
+                <EditText
+                    android:id="@+id/etReply"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_toStartOf="@+id/btnExpand"
+                    android:textColor="@android:color/darker_gray"
+                    android:background="#FAFAFA"
+                    android:inputType="textImeMultiLine|text"
+                    tools:text="Reply @CNN"/>
+                <Button
+                    android:id="@+id/btnExpand"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:layout_alignParentEnd="true"
+                    android:background="@drawable/expand_icon"
+                    />
+                <include
+                    android:id="@+id/ldDetail4"
+                    android:layout_width="fill_parent"
+                    android:layout_height="2dp"
+                    layout="@layout/divider_line_blue"
+                    android:layout_below="@+id/etReply"
+                    android:layout_marginBottom="@dimen/margin8"
+                    />
+                <Button
+                    android:id="@+id/btnRTextDetail"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:minHeight="0dp"
+                    android:minWidth="0dp"
+                    android:padding="@dimen/padding4"
+                    android:background="@android:color/transparent"
+                    android:text="@string/reply"
+                    android:textStyle="bold"
+                    android:textAllCaps="true"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textColor="@color/twitter_blue"
+                    android:layout_below="@+id/btnExpand"
+                    android:visibility="gone"
+                    android:layout_alignParentEnd="true"/>
+                <TextView
+                    android:id="@+id/tvCharCountDetail"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:text="140"
+                    android:layout_below="@id/btnExpand"
+                    android:layout_toStartOf="@+id/btnRTextDetail"
+                    android:layout_marginEnd="@dimen/margin8"
+                    android:layout_alignBaseline="@+id/btnRTextDetail"
+                    android:drawableEnd="@drawable/line_divider_vertical"
+                    android:visibility="gone"
+                    android:drawablePadding="@dimen/padding4"
+                    />
+            </RelativeLayout>
+
         </android.support.design.widget.BottomNavigationView>
     </RelativeLayout>
 </layout>

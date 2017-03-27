@@ -10,5 +10,6 @@
     <string name="compose_hint">What\'s happening?</string>
     <string name="tweet">Tweet</string>
     <string name="drafts">Drafts</string>
+    <string name="reply">Reply</string>
 
 </resources>
