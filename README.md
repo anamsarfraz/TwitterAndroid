@@ -53,6 +53,8 @@ The following **additional** features are implemented:
 ## Video Walkthrough
 
 Here's a walk through of the implemented stories:
+https://drive.google.com/file/d/0B7G3Mp_zMa_4dFhfQ1lQM3hSc28/view?usp=sharing
+
 <img src='https://drive.google.com/file/d/0B7G3Mp_zMa_4dFhfQ1lQM3hSc28/view?usp=sharing' title='Video Walkthrough' width='' alt='Video Walkthrough' />
 
 Here's a gif walkthrough of the offline mode and reloading from db:
