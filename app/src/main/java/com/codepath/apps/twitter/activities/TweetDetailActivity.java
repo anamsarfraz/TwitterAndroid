@@ -166,8 +166,20 @@ public class TweetDetailActivity extends AppCompatActivity implements ComposeFra
         binding.tvDetailUserName.setText(tweet.getUser().getName());
         binding.tvDetailScreenName.setText(screenName);
         binding.tvDetailBody.setText(tweet.getBody());
+
+        if (tweet.isFavorited()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                binding.btnLikeDetail.setBackground(getDrawable(R.drawable.like_selected));
+            }
+        }
+
         binding.tvLikes.setText(buildSpan(Constants.format(tweet.getFavoriteCount()), LIKES));
         binding.tvRetweets.setText(buildSpan(Constants.format(tweet.getRetweetCount()), RETWEEETS));
+        if (tweet.isRetweeted()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                binding.btnRetweetDetail.setBackground(getDrawable(R.drawable.retweet_selected));
+            }
+        }
         binding.tvDetailDate.setText(DateUtil.getDateTimeInFormat(tweet.getCreatedAt(), "dd MMM yy"));
         binding.tvDetailTime.setText(DateUtil.getDateTimeInFormat(tweet.getCreatedAt(), "h:mm a"));
         binding.etReply.setText(String.format("%s%s", REPLY_TO, tweet.getUser().getName()));
