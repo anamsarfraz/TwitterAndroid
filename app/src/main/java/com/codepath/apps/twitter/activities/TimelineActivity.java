@@ -319,7 +319,10 @@ public class TimelineActivity extends AppCompatActivity implements ComposeFragme
     public void logout() {
 
         client.clearAccessToken();
+        Intent intent = new Intent(TimelineActivity.this, LoginActivity.class);
+        startActivity(intent);
         finish();
+
     }
 
     @Override
