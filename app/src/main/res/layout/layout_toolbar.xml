@@ -18,6 +18,17 @@
             tools:src="@drawable/ic_launcher"
             android:scaleType="fitXY"
             />
+        <TextView
+            android:id="@+id/tvToolbarTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/home"
+            android:textColor="@android:color/black"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:layout_toEndOf="@+id/ivUserImageTimeline"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="@dimen/margin16"
+            android:textAllCaps="false"/>
         <ImageView
             android:id="@+id/ivAppIcon"
             android:layout_width="50dp"

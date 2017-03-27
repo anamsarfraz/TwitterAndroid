@@ -11,5 +11,6 @@
     <string name="tweet">Tweet</string>
     <string name="drafts">Drafts</string>
     <string name="reply">Reply</string>
+    <string name="home">Home</string>
 
 </resources>
