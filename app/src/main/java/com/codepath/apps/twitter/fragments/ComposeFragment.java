@@ -251,7 +251,7 @@ public class ComposeFragment extends DialogFragment implements ConfirmationFragm
         });
 
         // Show soft keyboard automatically and request focus to field
-        //showSoftKeyboard(etCompose);
+        showSoftKeyboard(etCompose);
 
     }
 
@@ -301,10 +301,15 @@ public class ComposeFragment extends DialogFragment implements ConfirmationFragm
     }
 
     public void showSoftKeyboard(View view){
-        if(view.requestFocus()){
-            InputMethodManager imm =(InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.showSoftInput(view,InputMethodManager.SHOW_IMPLICIT);
-        }
+        Log.d(DEBUG, "showSoftKeyboard called");
+        getDialog().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE|WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
+        getDialog().getWindow().setSoftInputMode(
+                WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        view.requestFocus();
+        InputMethodManager imm =(InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.showSoftInput(view,InputMethodManager.SHOW_IMPLICIT);
+
+
     }
 
     public void hideSoftKeyboard(View view){
